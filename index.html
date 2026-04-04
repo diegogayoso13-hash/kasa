@@ -97,6 +97,23 @@ function exportarPDF() {
   window.print();
 }
 
+
+/* ── PRESUPUESTO GENERAL ─────────────────────────────────────────────────── */
+function guardarPresupuestoGeneral() {
+  const mes = document.getElementById('p-mes')?.value;
+  if(!mes) return;
+  const val = Math.round(parseFloat(document.getElementById('p-general')?.value||'0'));
+  if(!DATA.presupuestoGeneral) DATA.presupuestoGeneral = {};
+  if(val > 0) {
+    DATA.presupuestoGeneral[mes] = val;
+  } else {
+    delete DATA.presupuestoGeneral[mes];
+  }
+  save();
+  renderPresupuestoInputs();
+  toast(val > 0 ? 'Presupuesto general guardado ✓' : 'Presupuesto eliminado');
+}
+
 </script>
 
 
@@ -576,6 +593,34 @@ tr:last-child td { border: none; }
         <div class="card-title" style="color:var(--blue)">Presupuesto mensual</div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5">Definí cuánto querés gastar por categoría este mes. Lo vas a ver comparado con el real en el Dashboard.</div>
         <div class="field"><label>Mes</label><select id="p-mes" onchange="renderPresupuestoInputs()"></select></div>
+
+        <div style="background:var(--bg3);border-radius:var(--r);padding:14px;margin-bottom:12px;border:0.5px solid var(--border2)">
+          <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Presupuesto general</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+            <input type="number" id="p-general" inputmode="decimal" placeholder="Ej: 150000"
+              style="flex:1;background:var(--bg4);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:10px 12px;outline:none">
+            <button class="btn" onclick="guardarPresupuestoGeneral()" style="padding:10px 16px;font-size:13px">Guardar</button>
+          </div>
+          <div id="p-general-resumen" style="display:none">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+              <span style="color:var(--text2)">Presupuesto</span>
+              <span id="p-gen-total" style="font-weight:600;font-family:'DM Mono',monospace;color:var(--text)"></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
+              <span style="color:var(--text2)">Gastado</span>
+              <span id="p-gen-gastado" style="font-weight:600;font-family:'DM Mono',monospace;color:var(--red)"></span>
+            </div>
+            <div style="height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:6px">
+              <div id="p-gen-barra" style="height:100%;border-radius:3px;background:var(--teal);transition:width .4s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:13px">
+              <span style="color:var(--text2)">Disponible</span>
+              <span id="p-gen-disponible" style="font-weight:700;font-family:'DM Mono',monospace"></span>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Por categoría</div>
         <div id="p-inputs" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"></div>
         <button class="btn" style="background:var(--blue-dim);color:var(--blue);border:0.5px solid var(--blue);font-size:15px;font-weight:600;padding:14px" onclick="guardarPresupuesto()">Guardar presupuesto</button>
       </div>
@@ -935,7 +980,7 @@ let editingId = null;
 
 
 /* ── PRESUPUESTO MENSUAL ─────────────────────────────────────────────────── */
-const CATS_LIST = ['Casa','Alimentación','Transporte','Salud','Indumentaria','Servicios','Ocio','Varios'];
+const CATS_LIST = ['Casa','Alimentación','Transporte','Salud','Indumentaria','Servicios','Ocio','Varios','Inversiones'];
 
 
 
@@ -991,7 +1036,7 @@ const HIST = {};
 const CAT_COLOR = {
   Alimentacion:'#1fba87',Casa:'#4b9ef0',Transporte:'#f0a500',
   Servicios:'#a78bfa',Salud:'#f04b4b',Indumentaria:'#f472b6',
-  Actividades:'#34d399',Varios:'#9ca3af',Retiros:'#0ea5e9'
+  Actividades:'#34d399',Varios:'#9ca3af',Retiros:'#0ea5e9',Inversiones:'#7f77dd'
 };
 
 const SUBCATS = {
@@ -1003,6 +1048,7 @@ const SUBCATS = {
   'Servicios':    ['Luz','Agua','Gas','Teléfonos','Suscripciones'],
   'Ocio':         ['Salidas','Fiestas','Actividades','Viajes'],
   'Varios':       ['Animales','Regalos','Otros'],
+  'Inversiones':  ['Acciones','Bonos','Cripto','Inmuebles','Fondos','Otros'],
 };
 
 function getSubcats() {
@@ -1023,7 +1069,7 @@ const CAT_DIST = {
   Varios:.13, Salud:.06, Actividades:.05, Indumentaria:.02, Retiros:.02
 };
 
-let DATA = { gastos:[], sueldos:{}, presupuestos:{}, metas:[
+let DATA = { gastos:[], sueldos:{}, presupuestos:{}, presupuestoGeneral:{}, metas:[
   {nombre:'Fondo emergencia (3 meses)', objetivo:400000},
   {nombre:'Vacaciones', objetivo:200000},
   {nombre:'Meta $1.000.000', objetivo:1000000},
@@ -1591,6 +1637,28 @@ function renderPresupuestoInputs() {
   const mes = document.getElementById('p-mes')?.value;
   if(!mes) return;
   const pres = (DATA.presupuestos||{})[mes] || {};
+
+  // Render general budget
+  const genVal = (DATA.presupuestoGeneral||{})[mes] || 0;
+  const genInput = document.getElementById('p-general');
+  if(genInput) genInput.value = genVal || '';
+
+  const gastosMes = DATA.gastos.filter(g=>g.mes===mes).reduce((a,g)=>a+g.monto,0);
+  const resumen = document.getElementById('p-general-resumen');
+  if(resumen && genVal > 0) {
+    resumen.style.display = 'block';
+    const pct = Math.min(gastosMes/genVal*100, 100);
+    const disp = genVal - gastosMes;
+    const fmt2 = v => '$' + Math.abs(Math.round(v)).toLocaleString('es-UY');
+    document.getElementById('p-gen-total').textContent = fmt2(genVal);
+    document.getElementById('p-gen-gastado').textContent = fmt2(gastosMes);
+    document.getElementById('p-gen-disponible').textContent = fmt2(disp);
+    document.getElementById('p-gen-disponible').style.color = disp >= 0 ? 'var(--teal)' : 'var(--red)';
+    const barra = document.getElementById('p-gen-barra');
+    if(barra) { barra.style.width = pct+'%'; barra.style.background = pct>=90?'var(--red)':pct>=70?'var(--amber)':'var(--teal)'; }
+  } else if(resumen) {
+    resumen.style.display = 'none';
+  }
   document.getElementById('p-inputs').innerHTML = CATS_LIST.map(cat=>`
     <div>
       <div style="font-size:11px;color:var(--text2);margin-bottom:4px">${cat}</div>
@@ -2408,6 +2476,23 @@ function exportarPDF() {
     ${monthRows}
     <div class="pdf-footer">Generado con Kasa — Finanzas del hogar</div>`;
   window.print();
+}
+
+
+/* ── PRESUPUESTO GENERAL ─────────────────────────────────────────────────── */
+function guardarPresupuestoGeneral() {
+  const mes = document.getElementById('p-mes')?.value;
+  if(!mes) return;
+  const val = Math.round(parseFloat(document.getElementById('p-general')?.value||'0'));
+  if(!DATA.presupuestoGeneral) DATA.presupuestoGeneral = {};
+  if(val > 0) {
+    DATA.presupuestoGeneral[mes] = val;
+  } else {
+    delete DATA.presupuestoGeneral[mes];
+  }
+  save();
+  renderPresupuestoInputs();
+  toast(val > 0 ? 'Presupuesto general guardado ✓' : 'Presupuesto eliminado');
 }
 
 </script>
