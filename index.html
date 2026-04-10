@@ -342,7 +342,7 @@ const LANG = {
     ob_hint_carga: '💡 Podés cargar tu sueldo y tus gastos en cualquier momento después de configurar.',
     // Auth
     auth_login: 'Iniciar sesión', auth_register: 'Crear cuenta', auth_password: 'Contraseña',
-    auth_logout: 'Cerrar sesión', auth_skip: 'Continuar sin cuenta',
+    auth_logout: 'Cerrar sesión', auth_skip: 'Continuar sin cuenta', auth_forgot: 'Olvidé mi contraseña', auth_forgot_sent: 'Te enviamos un email para restablecer tu contraseña. Revisá tu casilla y spam.',
     auth_error_invalid: 'Email o contraseña incorrectos',
     auth_check_email: 'Revisá tu email para confirmar', auth_pass_short: 'Mínimo 6 caracteres',
     // Privacy
@@ -648,7 +648,7 @@ const LANG = {
     tut_t4: 'Track your progress', tut_d4: 'Trends shows how your savings evolve month by month.',
     tut_t5: 'Set your goals', tut_d5: 'Set a savings goal and track your progress.',
     auth_login: 'Sign in', auth_register: 'Create account', auth_password: 'Password',
-    auth_logout: 'Sign out', auth_skip: 'Continue without account',
+    auth_logout: 'Sign out', auth_skip: 'Continue without account', auth_forgot: 'Forgot my password', auth_forgot_sent: 'We sent you an email to reset your password. Check your inbox and spam.',
     auth_error_invalid: 'Invalid email or password',
     auth_check_email: 'Check your email to confirm', auth_pass_short: 'At least 6 characters',
     card_privacidad: 'Privacy & data', card_tutorial: 'Tutorial', card_sesion: 'Session',
@@ -945,7 +945,7 @@ const LANG = {
     tut_t4: 'Acompanhe seu progresso', tut_d4: 'Tendências mostra como sua poupança evolui mês a mês.',
     tut_t5: 'Defina suas metas', tut_d5: 'Defina um objetivo de poupança e acompanhe seu progresso.',
     auth_login: 'Entrar', auth_register: 'Criar conta', auth_password: 'Senha',
-    auth_logout: 'Sair', auth_skip: 'Continuar sem conta',
+    auth_logout: 'Sair', auth_skip: 'Continuar sem conta', auth_forgot: 'Esqueci minha senha', auth_forgot_sent: 'Enviamos um email para redefinir sua senha. Verifique sua caixa de entrada e spam.',
     auth_error_invalid: 'Email ou senha incorretos',
     auth_check_email: 'Verifique seu email para confirmar', auth_pass_short: 'Mínimo 6 caracteres',
     card_privacidad: 'Privacidade e dados', card_tutorial: 'Tutorial', card_sesion: 'Sessão',
@@ -1288,6 +1288,7 @@ tr:last-child td { border: none; }
     </div>
     <button onclick="doLogin()" id="auth-login-btn" style="width:100%;padding:14px;background:#1a6fd4;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px" data-i18n="auth_login">Iniciar sesión</button>
     <button onclick="doRegister()" style="width:100%;padding:12px;background:transparent;border:0.5px solid #222;border-radius:12px;color:#888;font-size:14px;cursor:pointer;margin-bottom:10px" data-i18n="auth_register">Crear cuenta</button>
+    <button onclick="doForgotPassword()" style="width:100%;padding:10px;background:transparent;border:none;color:#1a6fd4;font-size:13px;cursor:pointer;margin-bottom:6px" data-i18n="auth_forgot">Olvidé mi contraseña</button>
     <button onclick="skipAuth()" style="width:100%;padding:10px;background:transparent;border:none;color:#444;font-size:13px;cursor:pointer" data-i18n="auth_skip">Continuar sin cuenta</button>
     <div id="auth-error-msg" style="display:none;color:#e57373;font-size:12px;text-align:center;margin-top:12px;line-height:1.5"></div>
   </div>
@@ -3880,10 +3881,13 @@ async function loginEmail(email, password) {
   } catch(e) { toast('Error de login: ' + e.message); return false; }
 }
 async function registerEmail(email, password) {
-  if(!supabaseClient) { toast(t('sync_error')); return false; }
-  const { data, error } = await supabaseClient.auth.signUp({ email, password });
-  if(error) { toast(error.message); return false; }
-  toast(t('auth_check_email')); return true;
+  if(!supabaseClient) { toast('Error: sin conexión al servidor'); return false; }
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if(error) { toast('Error: ' + error.message); console.error('[Finko] Register error:', error); return false; }
+    if(data?.user?.identities?.length === 0) { toast('Este email ya tiene cuenta. Usá Iniciar sesión.'); return false; }
+    toast(t('auth_check_email')); return true;
+  } catch(e) { toast('Error: ' + e.message); console.error('[Finko] Register exception:', e); return false; }
 }
 async function logout() {
   if(supabaseClient) await supabaseClient.auth.signOut();
@@ -3930,6 +3934,18 @@ async function doRegister() {
   if(!email||!pass){ toast(t('toast_campos')); return; }
   if(pass.length<6){ toast(t('auth_pass_short')); return; }
   await registerEmail(email, pass);
+}
+async function doForgotPassword() {
+  const email = document.getElementById('auth-email')?.value.trim();
+  if(!email){ toast('Escribí tu email primero'); return; }
+  if(!supabaseClient){ toast('Error: sin conexión al servidor'); return; }
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://diegogayoso13-hash.github.io/Kaza/'
+    });
+    if(error){ toast('Error: ' + error.message); return; }
+    toast(t('auth_forgot_sent'));
+  } catch(e){ toast('Error: ' + e.message); }
 }
 
 /* ── TUTORIAL INTERACTIVO ────────────────────────────────────────────────── */
