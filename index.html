@@ -4004,5 +4004,23 @@ window.addEventListener('offline', () => {
 
 
 <div id="pdf-report" style="display:none"><div class="pdf-page" id="pdf-content"></div></div>
+<script>
+// Service Worker: register + force update on every load
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // Force check for updated SW immediately
+    reg.update();
+    // When new SW is found waiting, activate it
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if(newWorker.state === 'activated') {
+          console.log('[Finko] New service worker activated');
+        }
+      });
+    });
+  }).catch(e => console.warn('[Finko] SW registration failed:', e));
+}
+</script>
 </body>
 </html>
