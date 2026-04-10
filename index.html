@@ -3982,16 +3982,16 @@ window.addEventListener('offline', () => {
 
 /* ── INIT AUTH + TUTORIAL ────────────────────────────────────────────────── */
 (function initMejoras() {
+  // Always init Supabase client (needed for login, register, forgot password)
+  initSupabaseAuth();
+
   const skipA = localStorage.getItem('finko_skip_auth');
   if(skipA) {
     // User previously skipped auth - hide login, go straight to app/onboarding
     hideLoginScreen();
-  } else {
-    // Try to restore Supabase session
-    initSupabaseAuth();
-    // If session restores, onAuthSuccess will hide login
-    // If not, login screen stays visible (it's display:flex by default)
   }
+  // If no skipA and no session, login screen stays visible (it's display:flex by default)
+
   // Tutorial for returning users
   setTimeout(() => { 
     if(!localStorage.getItem('finko_tutorial_done') && localStorage.getItem('finko_onboarded')) startTutorial(); 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'finko-v2';
+const CACHE_NAME = 'finko-v3';
 const URLS_TO_CACHE = [
   './',
   './indice.html',
