@@ -20,27 +20,68 @@
 const MARTIFIN_VERSION = 'v8.0';
 console.log('✅ Martifin ' + MARTIFIN_VERSION + ' loaded - supabaseClient init at top');
 var supabaseClient = null;
+var currentUser = null;
 
-/* ── XSS: escapar HTML en strings del usuario antes de inyectar con innerHTML */
+/* ── PAYWALL: estado Pro ──────────────────────────────────────────────────
+ * Lista de features Pro. isPro() consulta Supabase tabla user_pro.
+ * Cache local para no pegarle a Supabase en cada click.
+ * ─────────────────────────────────────────────────────────────────────── */
+const PRO_FEATURES = ['sync_cloud', 'pareja', 'tendencias', 'metas', 'presupuestos', 'pdf_export'];
+var _proCache = null;  // null = no consultado, true/false = consultado
+
 function esc(s) {
   if (s == null) return '';
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-/* ── SERVICE WORKER (PWA instalable) ────────────────────────────────────── */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js').catch(function(err) {
-      console.warn('SW register failed:', err);
-    });
-  });
+async function isPro() {
+  if (_proCache !== null) return _proCache;
+  try {
+    const uid = localStorage.getItem('finko_user_id');
+    if (!uid || !supabaseClient) { _proCache = false; return false; }
+    const { data, error } = await supabaseClient
+      .from('user_pro')
+      .select('is_pro, expires_at')
+      .eq('user_id', uid)
+      .maybeSingle();
+    if (error || !data) { _proCache = false; return false; }
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      _proCache = false; return false;
+    }
+    _proCache = !!data.is_pro;
+    return _proCache;
+  } catch (e) {
+    console.warn('isPro error:', e);
+    _proCache = false;
+    return false;
+  }
 }
-var currentUser = null;
+
+function invalidateProCache() { _proCache = null; }
+
+async function requirePro(featureKey) {
+  const ok = await isPro();
+  if (ok) return true;
+  showPaywall(featureKey);
+  return false;
+}
+
+function showPaywall(featureKey) {
+  const modal = document.getElementById('paywall-modal');
+  if (!modal) { console.warn('paywall-modal no existe'); return; }
+  const featName = document.getElementById('paywall-feature-name');
+  if (featName) featName.textContent = t('pro_feat_' + featureKey) || featureKey;
+  modal.style.display = 'flex';
+}
+
+function hidePaywall() {
+  const modal = document.getElementById('paywall-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function suscribirsePro() {
+  alert(t('paywall_soon') || 'Próximamente disponible con MercadoPago');
+}
 
 const LANG = {
   es: {
@@ -380,6 +421,19 @@ const LANG = {
     // Auth
     auth_login: 'Iniciar sesión', auth_register: 'Crear cuenta', auth_password: 'Contraseña',
     auth_logout: 'Cerrar sesión', auth_skip: 'Continuar sin cuenta',
+    // Paywall Pro
+    paywall_title: 'Función Pro 🔒',
+    paywall_desc: 'Esta función está disponible en Martifin Pro.',
+    paywall_price: '$2.99 USD / mes o $19 USD / año',
+    paywall_btn_sub: 'Suscribirme',
+    paywall_btn_close: 'Después',
+    paywall_soon: 'Próximamente disponible con MercadoPago. Te avisamos cuando esté listo.',
+    pro_feat_sync_cloud: 'Sincronización en la nube',
+    pro_feat_pareja: 'Modo pareja',
+    pro_feat_tendencias: 'Gráfico anual y tendencias',
+    pro_feat_metas: 'Metas de ahorro',
+    pro_feat_presupuestos: 'Presupuestos por categoría',
+    pro_feat_pdf_export: 'Exportar a PDF',
     auth_error_invalid: 'Email o contraseña incorrectos',
     auth_check_email: 'Revisá tu email para confirmar', auth_register_ok: '¡Cuenta creada!', auth_pass_short: 'Mínimo 6 caracteres',
     // Privacy
@@ -696,6 +750,18 @@ const LANG = {
     tut_t5: 'Set your goals', tut_d5: 'Set a savings goal and track your progress.',
     auth_login: 'Sign in', auth_register: 'Create account', auth_password: 'Password',
     auth_logout: 'Sign out', auth_skip: 'Continue without account',
+    paywall_title: 'Pro Feature 🔒',
+    paywall_desc: 'This feature is available in Martifin Pro.',
+    paywall_price: '$2.99 USD / month or $19 USD / year',
+    paywall_btn_sub: 'Subscribe',
+    paywall_btn_close: 'Later',
+    paywall_soon: 'Coming soon via MercadoPago. We\'ll let you know when it\'s ready.',
+    pro_feat_sync_cloud: 'Cloud sync',
+    pro_feat_pareja: 'Couple mode',
+    pro_feat_tendencias: 'Annual chart & trends',
+    pro_feat_metas: 'Savings goals',
+    pro_feat_presupuestos: 'Budget by category',
+    pro_feat_pdf_export: 'Export to PDF',
     auth_error_invalid: 'Invalid email or password',
     auth_check_email: 'Check your email to confirm', auth_register_ok: 'Account created!', auth_pass_short: 'At least 6 characters',
     card_privacidad: 'Privacy & data', card_tutorial: 'Tutorial', card_sesion: 'Session',
@@ -1003,6 +1069,18 @@ const LANG = {
     tut_t5: 'Defina suas metas', tut_d5: 'Defina um objetivo de poupança e acompanhe seu progresso.',
     auth_login: 'Entrar', auth_register: 'Criar conta', auth_password: 'Senha',
     auth_logout: 'Sair', auth_skip: 'Continuar sem conta',
+    paywall_title: 'Recurso Pro 🔒',
+    paywall_desc: 'Este recurso está disponível no Martifin Pro.',
+    paywall_price: 'US$ 2,99 / mês ou US$ 19 / ano',
+    paywall_btn_sub: 'Assinar',
+    paywall_btn_close: 'Depois',
+    paywall_soon: 'Em breve disponível via MercadoPago. Avisaremos quando estiver pronto.',
+    pro_feat_sync_cloud: 'Sincronização na nuvem',
+    pro_feat_pareja: 'Modo casal',
+    pro_feat_tendencias: 'Gráfico anual e tendências',
+    pro_feat_metas: 'Metas de poupança',
+    pro_feat_presupuestos: 'Orçamento por categoria',
+    pro_feat_pdf_export: 'Exportar para PDF',
     auth_error_invalid: 'Email ou senha incorretos',
     auth_check_email: 'Verifique seu email para confirmar', auth_register_ok: 'Conta criada!', auth_pass_short: 'Mínimo 6 caracteres',
     card_privacidad: 'Privacidade e dados', card_tutorial: 'Tutorial', card_sesion: 'Sessão',
@@ -1108,36 +1186,6 @@ function checkRecordatorios() {
   banner.style.display = 'none';
 }
 
-/* ── EXPORTAR PDF ────────────────────────────────────────────────────────── */
-function exportarPDF() {
-  const d = getMesData(selMes);
-  const tasa = d.sueldo > 0 ? Math.round(d.ahorro / d.sueldo * 100) : 0;
-  const tasaColor = tasa >= 20 ? '#1fba87' : tasa >= 10 ? '#f0a500' : '#f04b4b';
-  const sorted = Object.entries(d.cats).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
-  const catRows = sorted.map(([cat, val]) => `<div class="pdf-row"><span>${cat}</span><span style="font-weight:600;font-family:monospace">${fmt(val)}</span></div>`).join('');
-  const last6 = MONTHS.slice(-6);
-  const monthRows = last6.map(m => {
-    const md = getMesData(m);
-    const t = md.sueldo > 0 ? Math.round(md.ahorro/md.sueldo*100) : 0;
-    return `<div class="pdf-row"><span>${m}</span><span style="color:#1fba87;font-family:monospace">${fmt(md.sueldo||0)}</span><span style="color:#f04b4b;font-family:monospace">${fmt(md.totalGastos)}</span><span>${t}%</span></div>`;
-  }).join('');
-  const fechaStr = new Date().toLocaleDateString('es-UY', {day:'2-digit',month:'long',year:'numeric'});
-  document.getElementById('pdf-content').innerHTML = `
-    <div class="pdf-header"><div class="pdf-title">${t('pdf_resumen')}</div><div class="pdf-sub">${selMes} · ${fechaStr}</div></div>
-    <div class="pdf-kpi-grid">
-      <div class="pdf-kpi"><div class="pdf-kpi-label">${t('kpi_ingresos')}</div><div class="pdf-kpi-val">${fmt(d.sueldo)}</div></div>
-      <div class="pdf-kpi"><div class="pdf-kpi-label">${t('kpi_gastos')}</div><div class="pdf-kpi-val">${fmt(d.totalGastos)}</div></div>
-      <div class="pdf-kpi"><div class="pdf-kpi-label">${t('kpi_ahorro')}</div><div class="pdf-kpi-val">${fmt(d.ahorro)}</div></div>
-      <div class="pdf-kpi"><div class="pdf-kpi-label">${t('kpi_tasa')}</div><div class="pdf-kpi-val" style="color:${tasaColor}">${tasa}%</div><div class="pdf-tasa-bar" style="width:${Math.min(tasa,100)}%;background:${tasaColor}"></div></div>
-    </div>
-    <div class="pdf-section">${t('pdf_gastos_por_cat')} — ${selMes}</div>
-    ${catRows || `<div class="pdf-row">${t('pdf_sin_gastos')}</div>`}
-    <div class="pdf-section" style="margin-top:20px">${t('pdf_ultimos')} ${last6.length} ${t('pdf_meses')}</div>
-    <div class="pdf-row" style="font-weight:600;font-size:11px;color:#888;border-bottom:2px solid #ddd"><span>${t('lbl_mes')}</span><span>${t('kpi_ingresos')}</span><span>${t('kpi_gastos')}</span><span>${t('kpi_ahorro')} %</span></div>
-    ${monthRows}
-    <div class="pdf-footer">${t('pdf_footer')}</div>`;
-  window.print();
-}
 
 
 /* ── PRESUPUESTO GENERAL ─────────────────────────────────────────────────── */
@@ -1965,7 +2013,7 @@ tr:last-child td { border: none; }
            style="display:block;padding:12px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--blue);font-size:13px;text-decoration:none;margin-bottom:10px;text-align:center">
           📄 <span data-i18n="priv_policy_link">Ver Política de Privacidad</span>
         </a>
-        <a href="mailto:finko2026@gmail.com?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20datos%20-%20Martifin"
+        <a href="mailto:finko2026@gmail.com?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20datos%20-%20Finko"
            style="display:block;padding:12px;background:var(--red-dim);border:0.5px solid var(--red);border-radius:var(--r-sm);color:var(--red);font-size:13px;text-decoration:none;margin-bottom:10px;text-align:center">
           🗑️ <span data-i18n="priv_delete_request">Solicitar eliminación de mis datos</span>
         </a>
@@ -2248,7 +2296,6 @@ function getMesData(mes) {
   } else if(h.gastos) {
     Object.entries(CAT_DIST).forEach(([k,v]) => { cats[k] = Math.round(h.gastos * v); });
   }
-  // Si hay gastos cargados en el mes, usar su suma; si no, usar el historico
   const totalGastos = gl.length ? gl.reduce((a,g)=>a+g.monto,0) : (h.gastos || 0);
   // Build subcats map: {cat: {subcat: total}}
   const subcatsMap = {};
@@ -2266,7 +2313,14 @@ function getMesData(mes) {
 }
 
 /* ── NAVIGATION ─────────────────────────────────────────────────────────── */
-function navTo(pg, btn) {
+async function navTo(pg, btn) {
+  // ── PAYWALL GUARD ──
+  const proMap = { 'metas': 'metas', 'tendencias': 'tendencias', 'categorias': 'presupuestos' };
+  if (proMap[pg]) {
+    const ok = await requirePro(proMap[pg]);
+    if (!ok) return;  // muestra paywall y no navega
+  }
+
   document.querySelectorAll('.page').forEach(p => {
     p.classList.remove('active');
     p.style.display = 'none';
@@ -2811,7 +2865,8 @@ function renderMetas() {
     </div>`;
 }
 
-function agregarMeta() {
+async function agregarMeta() {
+  if (!(await requirePro('metas'))) return;
   const nombre = document.getElementById('m-nombre').value.trim();
   const obj = parseFloat(document.getElementById('m-obj').value);
   if(!nombre||!obj) { toast(t('toast_campos')); return; }
@@ -3057,7 +3112,8 @@ function renderPresupuestoInputs() {
     </div>`).join('');
 }
 
-function guardarPresupuesto() {
+async function guardarPresupuesto() {
+  if (!(await requirePro('presupuestos'))) return;
   const mes = document.getElementById('p-mes')?.value;
   if(!mes) return;
   const pres = {};
@@ -3475,7 +3531,8 @@ function activarPareja(mn,sn) {
   DATA.pareja={activo:true,miNombre:mn||'Yo',suNombre:sn||'Pareja'};
   save(); initParejaUI(); renderAjustesParejaUI(); toast(t('toast_pareja_on'));
 }
-function activarParejaDesdeAjustes() {
+async function activarParejaDesdeAjustes() {
+  if (!(await requirePro('pareja'))) return;
   const mn=document.getElementById('aj-mi-nombre')?.value.trim()||'Yo';
   const sn=document.getElementById('aj-su-nombre')?.value.trim();
   if(!sn){toast(t('toast_pareja_nombre'));return;}
@@ -3930,7 +3987,8 @@ function checkRecordatorios() {
 }
 
 /* ── EXPORTAR PDF ────────────────────────────────────────────────────────── */
-function exportarPDF() {
+async function exportarPDF() {
+  if (!(await requirePro('pdf_export'))) return;
   const d = getMesData(selMes);
   const tasa = d.sueldo > 0 ? Math.round(d.ahorro / d.sueldo * 100) : 0;
   const tasaColor = tasa >= 20 ? '#1fba87' : tasa >= 10 ? '#f0a500' : '#f04b4b';
@@ -4171,6 +4229,21 @@ window.addEventListener('offline', () => {
   </div>
 </div>
 
+<!-- ── PAYWALL MODAL ─────────────────────────────────────────────────── -->
+<div id="paywall-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--r);padding:28px 24px;width:100%;max-width:360px;text-align:center">
+    <div style="font-size:42px;margin-bottom:12px">🔒</div>
+    <div style="font-size:20px;font-weight:600;margin-bottom:8px" data-i18n="paywall_title">Función Pro</div>
+    <div id="paywall-feature-name" style="font-size:15px;color:#7f77dd;font-weight:500;margin-bottom:14px"></div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:18px;line-height:1.5" data-i18n="paywall_desc">Esta función está disponible en Martifin Pro.</div>
+    <div style="background:#1a1a40;border:0.5px solid #7f77dd;border-radius:10px;padding:14px;margin-bottom:18px">
+      <div style="font-size:15px;font-weight:600;color:#fff" data-i18n="paywall_price">$2.99 USD / mes o $19 USD / año</div>
+    </div>
+    <button onclick="suscribirsePro()" style="width:100%;padding:14px;background:#7f77dd;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px" data-i18n="paywall_btn_sub">Suscribirme</button>
+    <button onclick="hidePaywall()" style="width:100%;padding:12px;background:transparent;border:0.5px solid var(--border2);border-radius:10px;color:var(--text2);font-size:14px;cursor:pointer" data-i18n="paywall_btn_close">Después</button>
+  </div>
+</div>
+
 <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:500;align-items:flex-start;justify-content:center;padding-top:60px">
   <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--r);padding:20px;width:90%;max-width:380px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
@@ -4192,6 +4265,15 @@ window.addEventListener('offline', () => {
     <button class="btn btn-primary" onclick="guardarEdicion()"><span data-i18n="lbl_guardar_cambios">Guardar cambios</span></button>
   </div>
 </div>
+
+<script>
+/* ── SERVICE WORKER PWA ──────────────────────────────────────────────── */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW register failed:', err));
+  });
+}
+</script>
 
 </body>
 </html>
