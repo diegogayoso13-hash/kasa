@@ -1,50 +1,67 @@
-const CACHE_NAME = 'finko-v3';
-const URLS_TO_CACHE = [
+/* Martifin Service Worker v1
+   - Network-first para el HTML (evita stale cache del index)
+   - Cache-first para el resto (fuentes, chart.js, supabase-js, iconos)
+*/
+const CACHE = 'martifin-v1';
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.json',
   './finko-icon-192.png',
-  './finko-icon-512.png',
-  './manifiesto.json'
+  './finko-icon-512.png'
 ];
 
-// Install: cache assets (NOT the html — always fetch fresh)
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(URLS_TO_CACHE))
-      .then(() => self.skipWaiting())
-  );
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {}));
+  self.skipWaiting();
 });
 
-// Activate: delete ALL old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+    )
   );
+  self.clients.claim();
 });
 
-// Fetch: network-first for HTML, cache-first for assets
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  
-  // HTML pages: ALWAYS go to network first
-  if(event.request.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+
+  const url = new URL(req.url);
+  const isHTML =
+    req.mode === 'navigate' ||
+    (req.headers.get('accept') || '').includes('text/html') ||
+    url.pathname.endsWith('.html');
+
+  if (isHTML) {
+    // network-first para HTML
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
     );
     return;
   }
-  
-  // Other assets: network first, cache fallback
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        if(response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      })
-      .catch(() => caches.match(event.request))
+
+  // cache-first para el resto
+  e.respondWith(
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req)
+        .then((res) => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => cached);
+    })
   );
 });
