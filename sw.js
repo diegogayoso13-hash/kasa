@@ -1,14 +1,14 @@
-/* Martifin Service Worker v1
+/* Martifin Service Worker v2
    - Network-first para el HTML (evita stale cache del index)
    - Cache-first para el resto (fuentes, chart.js, supabase-js, iconos)
 */
-const CACHE = 'martifin-v1';
+const CACHE = 'martifin-v2';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './finko-icon-192.png',
-  './finko-icon-512.png'
+  './martifin-icon-192x192.png',
+  './martifin-icon-512x512.png'
 ];
 
 self.addEventListener('install', (e) => {
@@ -36,7 +36,6 @@ self.addEventListener('fetch', (e) => {
     url.pathname.endsWith('.html');
 
   if (isHTML) {
-    // network-first para HTML
     e.respondWith(
       fetch(req)
         .then((res) => {
@@ -49,7 +48,6 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // cache-first para el resto
   e.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
