@@ -59,6 +59,21 @@ async function isPro() {
 
 function invalidateProCache() { _proCache = null; }
 
+async function updateProLocks() {
+  const pro = await isPro();
+  document.querySelectorAll('.pro-lock').forEach(el => el.style.display = pro ? 'none' : '');
+}
+
+var _proTooltipTimer = null;
+function showProTooltip(featureKey) {
+  const tip = document.getElementById('pro-tooltip');
+  if (!tip) return;
+  tip.textContent = '🔒 ' + (t('pro_feat_' + featureKey) || 'Pro');
+  tip.classList.add('show');
+  clearTimeout(_proTooltipTimer);
+  _proTooltipTimer = setTimeout(() => tip.classList.remove('show'), 1800);
+}
+
 async function requirePro(featureKey) {
   const ok = await isPro();
   if (ok) return true;
@@ -1300,6 +1315,10 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
 #nav { position: fixed; bottom: 0; left: 0; right: 0; height: calc(58px + var(--safe-bottom)); font-size: 9px !important; padding-bottom: var(--safe-bottom); background: var(--bg2); border-top: 0.5px solid var(--border); display: flex; z-index: 100; }
 .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: none; color: var(--text3); font-family: 'DM Sans', sans-serif; font-size: 10px; cursor: pointer; transition: color .2s; }
 .nav-btn.active { color: var(--teal); }
+.nav-btn { position: relative; }
+.pro-lock { position: absolute; top: 4px; right: 12px; font-size: 8px; line-height: 1; opacity: 0.7; }
+.pro-tooltip { position: fixed; bottom: calc(62px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: var(--bg3, #333); color: #fff; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 8px; z-index: 101; pointer-events: none; opacity: 0; transition: opacity .2s; white-space: nowrap; }
+.pro-tooltip.show { opacity: 1; }
 .nav-icon { font-size: 18px; line-height: 1; }
 
 /* HEADER */
@@ -2109,18 +2128,19 @@ tr:last-child td { border: none; }
       <span class="nav-icon">☰</span><span data-i18n="nav_historial"><span>Historial</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('metas',this)">
-      <span class="nav-icon">◎</span><span data-i18n="nav_metas"><span>Metas</span></span>
+      <span class="pro-lock">🔒</span><span class="nav-icon">◎</span><span data-i18n="nav_metas"><span>Metas</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('tendencias',this)">
-      <span class="nav-icon">◈</span><span data-i18n="nav_tendencias"><span>Tendencias</span></span>
+      <span class="pro-lock">🔒</span><span class="nav-icon">◈</span><span data-i18n="nav_tendencias"><span>Tendencias</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('categorias',this)">
-      <span class="nav-icon">⊛</span><span data-i18n="nav_categorias"><span>Categorías</span></span>
+      <span class="pro-lock">🔒</span><span class="nav-icon">⊛</span><span data-i18n="nav_categorias"><span>Categorías</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('ajustes',this)">
       <span class="nav-icon">⚙</span><span data-i18n="nav_ajustes"><span>Ajustes</span></span>
     </button>
   </div>
+  <div id="pro-tooltip" class="pro-tooltip"></div>
 </div>
 
 <div id="toast"></div>
@@ -2373,7 +2393,7 @@ async function navTo(pg, btn) {
   const proMap = { 'metas': 'metas', 'tendencias': 'tendencias', 'categorias': 'presupuestos' };
   if (proMap[pg]) {
     const ok = await requirePro(proMap[pg]);
-    if (!ok) return;  // muestra paywall y no navega
+    if (!ok) { showProTooltip(proMap[pg]); return; }
   }
 
   document.querySelectorAll('.page').forEach(p => {
@@ -4254,6 +4274,8 @@ window.addEventListener('offline', () => {
     // User previously skipped auth - hide login, go straight to app/onboarding
     hideLoginScreen();
   }
+  // Actualizar candados Pro en nav
+  setTimeout(updateProLocks, 1500);
   // Tutorial for returning users
   setTimeout(() => { 
     if(!localStorage.getItem('finko_tutorial_done') && localStorage.getItem('finko_onboarded')) startTutorial(); 
