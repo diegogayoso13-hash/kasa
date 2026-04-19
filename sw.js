@@ -7,8 +7,8 @@ const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './martifin-icon-192x192.png',
-  './martifin-icon-512x512.png'
+  './finko-icon-192.png',
+  './finko-icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
@@ -36,6 +36,7 @@ self.addEventListener('fetch', (e) => {
     url.pathname.endsWith('.html');
 
   if (isHTML) {
+    // network-first para HTML
     e.respondWith(
       fetch(req)
         .then((res) => {
@@ -48,6 +49,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
+  // cache-first para el resto
   e.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
