@@ -3037,13 +3037,14 @@ function eliminarMes(i) {
   const tieneGastos = DATA.gastos.some(g => g.mes === m);
   if(tieneGastos) { toast(t('toast_mes_con_gastos')); return; }
   const label = getMonthDisplay(m) || m;
-  if(!confirm(t('confirm_eliminar_mes') || '¿Eliminar ' + label + '?')) return;
-  MONTHS.splice(i, 1);
-  if(selMes === m) selMes = MONTHS[MONTHS.length - 1];
-  save();
-  refreshAll();
-  renderAjustes();
-  toast(`${label} ${t('toast_mes_eliminado')}`);
+  showConfirm(t('confirm_eliminar_mes') || '¿Eliminar ' + label + '?', function() {
+    MONTHS.splice(i, 1);
+    if(selMes === m) selMes = MONTHS[MONTHS.length - 1];
+    save();
+    refreshAll();
+    renderAjustes();
+    toast(`${label} ${t('toast_mes_eliminado')}`);
+  });
 }
 
 function refreshAll() {
@@ -3057,11 +3058,11 @@ function refreshAll() {
 }
 
 function confirmarBorrar() {
-  if(confirm(t('confirm_borrar_datos'))) {
+  showConfirm(t('confirm_borrar_datos'), function() {
     DATA.gastos=[];DATA.sueldos={};DATA.gastosAhorros=[];save();
     renderAjustes();
     toast(t('toast_datos_borrados'));
-  }
+  });
 }
 
 /* ── INIT ───────────────────────────────────────────────────────────────── */
@@ -4364,6 +4365,36 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW register failed:', err));
   });
+}
+</script>
+
+
+<!-- ── CONFIRM MODAL PERSONALIZADO ──────────────────────────────────────── -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:700;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--r);padding:28px 24px;width:100%;max-width:340px;text-align:center">
+    <div id="confirm-msg" style="font-size:15px;color:var(--text);line-height:1.6;margin-bottom:24px"></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="hideConfirm()" style="flex:1;padding:13px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:14px;font-weight:500;cursor:pointer">Cancelar</button>
+      <button id="confirm-ok-btn" style="flex:1;padding:13px;background:var(--red);border:none;border-radius:var(--r-sm);color:#fff;font-size:14px;font-weight:600;cursor:pointer">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var _confirmCallback = null;
+function showConfirm(msg, callback) {
+  _confirmCallback = callback;
+  document.getElementById('confirm-msg').textContent = msg;
+  const modal = document.getElementById('confirm-modal');
+  modal.style.display = 'flex';
+  document.getElementById('confirm-ok-btn').onclick = function() {
+    hideConfirm();
+    if(_confirmCallback) _confirmCallback();
+  };
+}
+function hideConfirm() {
+  document.getElementById('confirm-modal').style.display = 'none';
+  _confirmCallback = null;
 }
 </script>
 
