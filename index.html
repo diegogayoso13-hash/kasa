@@ -2107,10 +2107,27 @@ tr:last-child td { border: none; }
         <button class="btn" onclick="startTutorial()" style="font-size:14px;padding:12px">🎓 <span data-i18n="btn_ver_tutorial">Ver tutorial de uso</span></button>
       </div>
 
-      <div class="card" id="card-auth-ajustes" style="display:none">
+      <div class="card" id="card-auth-ajustes">
         <div class="card-title" data-i18n="card_sesion">Sesión</div>
-        <div id="auth-user-email" style="font-size:13px;color:var(--teal);margin-bottom:10px"></div>
-        <button class="btn" onclick="logout()" style="background:var(--red-dim);color:var(--red);border:0.5px solid var(--red);font-size:14px;padding:12px" data-i18n="auth_logout">Cerrar sesión</button>
+        <!-- Usuario logueado -->
+        <div id="auth-logged-in" style="display:none">
+          <div id="auth-user-email" style="font-size:13px;color:var(--teal);margin-bottom:10px"></div>
+          <button class="btn" onclick="logout()" style="background:var(--red-dim);color:var(--red);border:0.5px solid var(--red);font-size:14px;padding:12px" data-i18n="auth_logout">Cerrar sesión</button>
+        </div>
+        <!-- Usuario sin cuenta -->
+        <div id="auth-logged-out">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">Iniciá sesión para sincronizar tus datos en la nube y acceder desde cualquier dispositivo.</div>
+          <div class="field"><label>Email</label>
+            <input type="email" id="aj-login-email" placeholder="tu@email.com" autocomplete="email"
+              style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px;outline:none">
+          </div>
+          <div class="field"><label>Contraseña</label>
+            <input type="password" id="aj-login-pass" placeholder="••••••••" autocomplete="current-password"
+              style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px;outline:none">
+          </div>
+          <button class="btn btn-primary" onclick="doLoginAjustes()" style="margin-bottom:10px;font-size:14px;padding:12px">Iniciar sesión</button>
+          <button class="btn" onclick="doRegisterAjustes()" style="font-size:13px;padding:10px;color:var(--text2)">Crear cuenta nueva</button>
+        </div>
       </div>
       <div class="card">
         <div class="card-title" data-i18n="nav_resumen">Resumen</div>
@@ -4183,19 +4200,51 @@ async function registerEmail(email, password) {
 }
 async function logout() {
   if(supabaseClient) await supabaseClient.auth.signOut();
-  currentUser = null; showLoginScreen();
+  currentUser = null;
+  invalidateProCache();
+  updateProLocks();
+  updateAuthUI();
 }
 function onAuthSuccess() {
   try {
     hideLoginScreen(); 
     cloudLoad();
-    const c = document.getElementById('card-auth-ajustes'); if(c) c.style.display='block';
-    const e = document.getElementById('auth-user-email'); if(e && currentUser) e.textContent='📧 '+currentUser.email;
+    updateAuthUI();
     if(!localStorage.getItem('finko_onboarded')) obInit();
   } catch(e) {
     console.error('onAuthSuccess error:', e);
     hideLoginScreen();
   }
+}
+
+function updateAuthUI() {
+  const loggedIn = document.getElementById('auth-logged-in');
+  const loggedOut = document.getElementById('auth-logged-out');
+  const emailEl = document.getElementById('auth-user-email');
+  if(currentUser) {
+    if(loggedIn) loggedIn.style.display = 'block';
+    if(loggedOut) loggedOut.style.display = 'none';
+    if(emailEl) emailEl.textContent = '📧 ' + currentUser.email;
+  } else {
+    if(loggedIn) loggedIn.style.display = 'none';
+    if(loggedOut) loggedOut.style.display = 'block';
+  }
+}
+
+async function doLoginAjustes() {
+  const email = document.getElementById('aj-login-email')?.value.trim();
+  const pass = document.getElementById('aj-login-pass')?.value;
+  if(!email || !pass) { toast(t('toast_campos')); return; }
+  const ok = await loginEmail(email, pass);
+  if(ok) { updateAuthUI(); invalidateProCache(); updateProLocks(); }
+}
+
+async function doRegisterAjustes() {
+  const email = document.getElementById('aj-login-email')?.value.trim();
+  const pass = document.getElementById('aj-login-pass')?.value;
+  if(!email || !pass) { toast(t('toast_campos')); return; }
+  if(pass.length < 6) { toast(t('auth_pass_short')); return; }
+  await registerEmail(email, pass);
 }
 function showLoginScreen() {
   const ls = document.getElementById('login-screen'); if(ls) { ls.style.display='flex'; ls.style.alignItems='center'; ls.style.justifyContent='center'; }
@@ -4282,6 +4331,8 @@ window.addEventListener('offline', () => {
   }
   // Actualizar candados Pro en nav
   setTimeout(updateProLocks, 1500);
+  // Actualizar UI de sesión
+  setTimeout(updateAuthUI, 500);
   // Tutorial for returning users
   setTimeout(() => { 
     if(!localStorage.getItem('finko_tutorial_done') && localStorage.getItem('finko_onboarded')) startTutorial(); 
