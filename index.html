@@ -4439,8 +4439,9 @@ function showConfirm(msg, callback) {
   const modal = document.getElementById('confirm-modal');
   modal.style.display = 'flex';
   document.getElementById('confirm-ok-btn').onclick = function() {
+    const cb = _confirmCallback;
     hideConfirm();
-    if(_confirmCallback) _confirmCallback();
+    if(cb) cb();
   };
 }
 function hideConfirm() {
