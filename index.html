@@ -3742,20 +3742,30 @@ function applyCloudData(p) {
   }
 }
 
-function cloudSave(payload) {
+async function getAuthToken() {
+  if(!supabaseClient) return SB_KEY;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    return session?.access_token || SB_KEY;
+  } catch(e) { return SB_KEY; }
+}
+
+async function cloudSave(payload) {
   if(!navigator.onLine) { localStorage.setItem('fpro_v3_pending', payload); return; }
   showSync('syncing');
+  const token = await getAuthToken();
   fetch(SB_URL + '/rest/v1/sync_data?id=eq.' + USER_ID, {
     method: 'POST',
-    headers: {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates,return=minimal'},
+    headers: {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=minimal'},
     body: JSON.stringify({id: USER_ID, data: JSON.parse(payload), updated_at: new Date().toISOString()})
   }).then(r => r.ok ? showSync('ok') : showSync('error')).catch(() => showSync('error'));
 }
 
-function cloudLoad() {
+async function cloudLoad() {
   showSync('syncing');
+  const token = await getAuthToken();
   fetch(SB_URL + '/rest/v1/sync_data?id=eq.' + USER_ID + '&select=data', {
-    headers: {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}
+    headers: {'apikey':SB_KEY,'Authorization':'Bearer '+token}
   })
   .then(r => r.json())
   .then(rows => {
