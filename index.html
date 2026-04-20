@@ -34,34 +34,62 @@ function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-async function isPro() {
+/* ── TRIAL 30 DÍAS ───────────────────────────────────────────────────────
+ * Al registrarse (o skipear auth) se guarda finko_trial_start.
+ * Durante 30 días acceso libre a todas las features Pro EXCEPTO sync_cloud.
+ * Los días 28-29 se muestra un banner de aviso.
+ * ─────────────────────────────────────────────────────────────────────── */
+function initTrialStart() {
+  if (!localStorage.getItem('finko_trial_start')) {
+    localStorage.setItem('finko_trial_start', new Date().toISOString());
+  }
+}
+function getTrialDaysLeft() {
+  const start = localStorage.getItem('finko_trial_start');
+  if (!start) return 0;
+  const diff = (new Date() - new Date(start)) / (1000 * 60 * 60 * 24);
+  return Math.max(0, Math.ceil(30 - diff));
+}
+function isInTrial() { return getTrialDaysLeft() > 0; }
+
+async function isPro(featureKey) {
+  // sync_cloud SIEMPRE requiere Pro real, nunca entra por trial
+  if (featureKey === 'sync_cloud') {
+    if (_proCache !== null) return _proCache;
+    try {
+      const uid = localStorage.getItem('finko_user_id');
+      if (!uid || !supabaseClient) { _proCache = false; return false; }
+      const { data, error } = await supabaseClient
+        .from('user_pro').select('is_pro, expires_at').eq('user_id', uid).maybeSingle();
+      if (error || !data) { _proCache = false; return false; }
+      if (data.expires_at && new Date(data.expires_at) < new Date()) { _proCache = false; return false; }
+      _proCache = !!data.is_pro; return _proCache;
+    } catch (e) { _proCache = false; return false; }
+  }
+  // Para el resto: si está en trial, acceso libre
+  if (isInTrial()) return true;
+  // Si el trial venció, chequear Pro real
   if (_proCache !== null) return _proCache;
   try {
     const uid = localStorage.getItem('finko_user_id');
     if (!uid || !supabaseClient) { _proCache = false; return false; }
     const { data, error } = await supabaseClient
-      .from('user_pro')
-      .select('is_pro, expires_at')
-      .eq('user_id', uid)
-      .maybeSingle();
+      .from('user_pro').select('is_pro, expires_at').eq('user_id', uid).maybeSingle();
     if (error || !data) { _proCache = false; return false; }
-    if (data.expires_at && new Date(data.expires_at) < new Date()) {
-      _proCache = false; return false;
-    }
-    _proCache = !!data.is_pro;
-    return _proCache;
+    if (data.expires_at && new Date(data.expires_at) < new Date()) { _proCache = false; return false; }
+    _proCache = !!data.is_pro; return _proCache;
   } catch (e) {
     console.warn('isPro error:', e);
-    _proCache = false;
-    return false;
+    _proCache = false; return false;
   }
 }
 
 function invalidateProCache() { _proCache = null; }
 
 async function updateProLocks() {
-  const pro = await isPro();
-  document.querySelectorAll('.pro-lock').forEach(el => el.style.display = pro ? 'none' : '');
+  const pro = await isPro('sync_cloud');
+  const inTrial = isInTrial();
+  document.querySelectorAll('.pro-lock').forEach(el => el.style.display = (pro || inTrial) ? 'none' : '');
   // Mostrar badge PRO solo si es Pro, ocultar si es Free
   const badge = document.getElementById('hdr-badge');
   if (badge) {
@@ -80,7 +108,7 @@ function showProTooltip(featureKey) {
 }
 
 async function requirePro(featureKey) {
-  const ok = await isPro();
+  const ok = await isPro(featureKey);
   if (ok) return true;
   showPaywall(featureKey);
   return false;
@@ -1631,6 +1659,16 @@ tr:last-child td { border: none; }
   </div>
 </div>
 
+<div id="trial-banner" style="display:none;background:rgba(29,186,135,0.1);border-bottom:0.5px solid rgba(29,186,135,0.3);padding:10px 16px;cursor:pointer">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:18px">⏳</span>
+    <div style="flex:1">
+      <div id="trial-banner-text" style="font-size:13px;font-weight:600;color:var(--teal)"></div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">Tocá para ver planes Pro →</div>
+    </div>
+  </div>
+</div>
+
 <div id="content">
 
     <!-- DASHBOARD -->
@@ -3099,6 +3137,7 @@ if(localStorage.getItem('finko_skip_auth') || localStorage.getItem('finko_onboar
 setTimeout(cloudLoad, 1000);
 setTimeout(initParejaUI, 100);
 setTimeout(checkRecordatorios, 1500);
+setTimeout(checkTrialBanner, 2000);
 setTimeout(initFilosofia, 500);
 
 
@@ -3886,7 +3925,7 @@ function cambiarCodigo() {
   USER_ID = val;
   localStorage.setItem('finko_user_id', val);
   renderUserCode();
-  save();
+  cloudLoad();
   toast(t('toast_codigo_ok'));
 }
 
@@ -4084,6 +4123,30 @@ function checkRecordatorios() {
   banner.style.display = 'none';
 }
 
+/* ── BANNER TRIAL ────────────────────────────────────────────────────────── */
+function cerrarTrialBanner() {
+  const el = document.getElementById('trial-banner');
+  if(el) el.style.display = 'none';
+  localStorage.setItem('finko_trial_banner_closed', new Date().toDateString());
+}
+
+async function checkTrialBanner() {
+  const pro = await isPro('sync_cloud');
+  if(pro) return;
+  const daysLeft = getTrialDaysLeft();
+  if(daysLeft > 2 || daysLeft === 0) return;
+  const closedToday = localStorage.getItem('finko_trial_banner_closed');
+  if(closedToday === new Date().toDateString()) return;
+  const banner = document.getElementById('trial-banner');
+  const text = document.getElementById('trial-banner-text');
+  if(!banner || !text) return;
+  text.textContent = daysLeft === 1
+    ? '¡Tu prueba gratis vence mañana! Pasate a Pro para no perder Tendencias, Metas y Presupuestos.'
+    : `Te quedan ${daysLeft} días de prueba gratuita. ¡Pasate a Pro y seguí con todo!`;
+  banner.style.display = 'block';
+  banner.onclick = () => { cerrarTrialBanner(); showPaywall('metas'); };
+}
+
 /* ── EXPORTAR PDF ────────────────────────────────────────────────────────── */
 async function exportarPDF() {
   if (!(await requirePro('pdf_export'))) return;
@@ -4207,7 +4270,9 @@ async function logout() {
 }
 function onAuthSuccess() {
   try {
-    hideLoginScreen(); 
+    hideLoginScreen();
+    // Iniciar trial de 30 días si es la primera vez
+    initTrialStart();
     cloudLoad();
     updateAuthUI();
     if(!localStorage.getItem('finko_onboarded')) obInit();
@@ -4263,6 +4328,8 @@ function skipAuth() {
     USER_ID = anonId;
     localStorage.setItem('finko_user_id', anonId);
   }
+  // Iniciar trial de 30 días
+  initTrialStart();
   // Show onboarding if first time
   if(!localStorage.getItem('finko_onboarded')) obInit();
 }
