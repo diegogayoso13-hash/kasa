@@ -1242,7 +1242,8 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
 #header { padding: 52px 20px 16px; background: var(--bg); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
 #content { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 16px 16px calc(80px + var(--safe-bottom)); }
 #nav { position: fixed; bottom: 0; left: 0; right: 0; height: calc(58px + var(--safe-bottom)); font-size: 9px !important; padding-bottom: var(--safe-bottom); background: var(--bg2); border-top: 0.5px solid var(--border); display: flex; z-index: 100; }
-.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: none; color: var(--text3); font-family: 'DM Sans', sans-serif; font-size: 10px; cursor: pointer; transition: color .2s; }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: none; border: none; color: var(--text3); font-family: 'DM Sans', sans-serif; font-size: 10px; cursor: pointer; transition: color .2s, transform .1s; -webkit-tap-highlight-color: transparent; }
+.nav-btn:active { transform: scale(0.9); }
 .nav-btn.active { color: var(--teal); }
 .nav-btn { position: relative; }
 .pro-lock { position: absolute; top: 4px; right: 12px; font-size: 8px; line-height: 1; opacity: 0.7; }
@@ -1257,10 +1258,17 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
 .hdr-badge { background: var(--teal-dim); color: var(--teal); border: 0.5px solid var(--teal); border-radius: 20px; font-size: 11px; font-weight: 500; padding: 3px 10px; }
 
 /* PAGES */
-.page { display: none; }
-#onboarding { position: fixed; inset: 0; background: #0a0a0a; z-index: 999; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
-.page.active { display: block; }
+.page { display: none; opacity: 0; transform: translateY(8px); }
+.page.active { display: block; animation: pageIn .25s ease-out forwards; }
+@keyframes pageIn { to { opacity: 1; transform: translateY(0); } }
 
+/* SKELETON LOADING */
+.skeleton { background: var(--bg2); border-radius: var(--r); overflow: hidden; position: relative; }
+.skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(127,127,127,.08), transparent); animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.skeleton-kpi { height: 80px; margin-bottom: 10px; }
+.skeleton-chart { height: 200px; margin-bottom: 12px; }
+#onboarding { position: fixed; inset: 0; background: #0a0a0a; z-index: 999; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
 /* CARDS */
 .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
 .card-title { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
@@ -2367,6 +2375,10 @@ async function navTo(pg, btn) {
     if (!ok) { showProTooltip(proMap[pg]); return; }
   }
 
+  // ── HAPTIC FEEDBACK ──
+  if (navigator.vibrate) navigator.vibrate(10);
+
+  // ── HIDE ALL PAGES ──
   document.querySelectorAll('.page').forEach(p => {
     p.classList.remove('active');
     p.style.display = 'none';
@@ -2375,8 +2387,13 @@ async function navTo(pg, btn) {
 
   const target = document.getElementById('pg-' + pg);
   if(!target) return;
-  target.classList.add('active');
+
+  // ── RESET ANIMATION ──
   target.style.display = 'block';
+  target.style.animation = 'none';
+  target.offsetHeight; // force reflow
+  target.style.animation = '';
+  target.classList.add('active');
 
   btn.classList.add('active');
   document.getElementById('content').scrollTop = 0;
@@ -4414,6 +4431,41 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW register failed:', err));
   });
 }
+
+/* ── SWIPE NAVIGATION ──────────────────────────────────────────────── */
+(function() {
+  const TABS = ['dashboard','cargar','historial','metas','tendencias','categorias','ajustes'];
+  let touchStartX = 0, touchStartY = 0, swiping = false;
+  const content = document.getElementById('content');
+  if (!content) return;
+
+  content.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    swiping = true;
+  }, { passive: true });
+
+  content.addEventListener('touchend', function(e) {
+    if (!swiping) return;
+    swiping = false;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+
+    const currentBtn = document.querySelector('.nav-btn.active');
+    const currentPage = document.querySelector('.page.active');
+    if (!currentPage) return;
+    const currentId = currentPage.id.replace('pg-','');
+    const idx = TABS.indexOf(currentId);
+    if (idx === -1) return;
+
+    const nextIdx = dx < 0 ? idx + 1 : idx - 1;
+    if (nextIdx < 0 || nextIdx >= TABS.length) return;
+
+    const nextBtn = document.querySelectorAll('.nav-btn')[nextIdx];
+    if (nextBtn) navTo(TABS[nextIdx], nextBtn);
+  }, { passive: true });
+})();
 </script>
 
 
