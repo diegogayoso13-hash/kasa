@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#0E1628">
 <link rel="manifest" href="manifest.json">
 <title>Martifin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1212,15 +1212,15 @@ let currentLang = localStorage.getItem('finko_lang') || 'es';
 
 <style>
 :root {
-  --bg: #0d0d0d;
-  --bg2: #161616;
-  --bg3: #1e1e1e;
-  --bg4: #262626;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.14);
+  --bg: #0E1628;
+  --bg2: #151F35;
+  --bg3: #1C2844;
+  --bg4: #233154;
+  --border: rgba(180,200,255,0.08);
+  --border2: rgba(180,200,255,0.14);
   --text: #f0f0f0;
-  --text2: #888;
-  --text3: #555;
+  --text2: #8a93a8;
+  --text3: #5a637a;
   --teal: #1DBA87;
   --teal-dim: rgba(29,186,135,0.12);
   --red: #f04b4b;
@@ -1250,6 +1250,8 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
 .pro-tooltip { position: fixed; bottom: calc(62px + var(--safe-bottom)); left: 50%; transform: translateX(-50%); background: var(--bg3, #333); color: #fff; font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 8px; z-index: 101; pointer-events: none; opacity: 0; transition: opacity .2s; white-space: nowrap; }
 .pro-tooltip.show { opacity: 1; }
 .nav-icon { font-size: 18px; line-height: 1; }
+#fab-add:active { transform: scale(0.9); }
+#fab-add.hidden { display: none !important; }
 
 /* HEADER */
 .hdr-row { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -1272,7 +1274,7 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
 @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 .skeleton-kpi { height: 80px; margin-bottom: 10px; }
 .skeleton-chart { height: 200px; margin-bottom: 12px; }
-#onboarding { position: fixed; inset: 0; background: #0a0a0a; z-index: 999; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
+#onboarding { position: fixed; inset: 0; background: #0E1628; z-index: 999; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
 /* CARDS */
 .card { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
 .card-title { font-size: 11px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
@@ -1390,7 +1392,7 @@ tr:last-child td { border: none; }
 <body>
 
 
-<div id="login-screen" style="display:flex;position:fixed;inset:0;background:#0a0a0a;z-index:1000;align-items:center;justify-content:center;flex-direction:column">
+<div id="login-screen" style="display:flex;position:fixed;inset:0;background:#0E1628;z-index:1000;align-items:center;justify-content:center;flex-direction:column">
   <div style="max-width:360px;width:90%;padding:24px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="font-size:34px;font-weight:700;color:#fff">Marti<span style="color:#1DBA87">fin</span></div>
@@ -1512,7 +1514,7 @@ tr:last-child td { border: none; }
 </div>
 
 
-<div id="filosofia-panel" style="display:none;position:fixed;inset:0;background:#0a0a0a;z-index:998;overflow-y:auto;-webkit-overflow-scrolling:touch">
+<div id="filosofia-panel" style="display:none;position:fixed;inset:0;background:#0E1628;z-index:998;overflow-y:auto;-webkit-overflow-scrolling:touch">
   <div style="max-width:420px;margin:0 auto;padding:32px 20px 40px">
 
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px">
@@ -1582,21 +1584,29 @@ tr:last-child td { border: none; }
     <!-- DASHBOARD -->
     <div id="pg-dashboard" class="page active">
       <div class="month-scroll" id="month-scroll"></div>
-      <div id="inspiracion-card" onclick="abrirFilosofia()" style="background:rgba(240,165,0,0.06);border:0.5px solid rgba(240,165,0,0.3);border-radius:14px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer">
-        <div style="width:34px;height:34px;background:rgba(240,165,0,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📖</div>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:500;color:#f0a500"><span data-i18n="filosofia_titulo">La bolsa o la vida</span></div>
-          <div style="font-size:11px;color:#664;margin-top:1px"><span data-i18n="filosofia_sub">Ver los 9 pasos · Inspiración</span></div>
-        </div>
-        <div style="color:#664;font-size:16px">›</div>
-      </div>
-
-      <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button onclick="exportarPDF()" style="background:transparent;border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:12px;padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:6px"><span style="font-size:14px">📄</span><span data-i18n="btn_exportar_pdf"> Exportar PDF</span></button></div>
       <div id="pareja-toggle" style="display:none;margin:0 0 12px;background:var(--bg2);border-radius:var(--r);padding:4px;display:flex;gap:4px">
         <button id="tog-solo" onclick="setVista('solo')" style="flex:1;padding:8px;border:none;border-radius:calc(var(--r) - 4px);font-size:13px;font-weight:600;cursor:pointer;background:var(--teal);color:#000"><span data-i18n="btn_solo_yo">Solo yo</span></button>
         <button id="tog-pareja" onclick="setVista('pareja')" style="flex:1;padding:8px;border:none;border-radius:calc(var(--r) - 4px);font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--text2)"><span data-i18n="btn_hogar">Hogar</span></button>
       </div>
       <div id="kpi-grid-normal">
+      <div id="resumen-rapido" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:none">
+        <div style="display:flex;justify-content:space-between;gap:10px">
+          <div style="flex:1;text-align:center;padding:2px 0">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Hoy</div>
+            <div id="rr-hoy" style="font-size:15px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)">—</div>
+          </div>
+          <div style="width:0.5px;background:var(--border)"></div>
+          <div style="flex:1;text-align:center;padding:2px 0">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Ayer</div>
+            <div id="rr-ayer" style="font-size:15px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)">—</div>
+          </div>
+          <div style="width:0.5px;background:var(--border)"></div>
+          <div style="flex:1;text-align:center;padding:2px 0">
+            <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Esta semana</div>
+            <div id="rr-semana" style="font-size:15px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)">—</div>
+          </div>
+        </div>
+      </div>
       <div class="kpi-grid">
         <div class="kpi">
           <div class="kpi-label"><span data-i18n="kpi_ingresos">Ingresos</span></div>
@@ -1670,22 +1680,26 @@ tr:last-child td { border: none; }
 
       <div class="card">
         <div class="card-title"><span data-i18n="card_saldo_ahorros">Saldo de ahorros</span></div>
+
+        <!-- KPI principal: DISPONIBLE -->
+        <div style="background:var(--bg3);border:0.5px solid var(--teal);border-radius:var(--r);padding:14px;margin-bottom:12px;text-align:center">
+          <div style="font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px"><span data-i18n="lbl_disponible">Disponible</span></div>
+          <div class="kpi-value" style="font-size:24px;color:var(--teal);font-family:'DM Mono',monospace" id="ac-disp">—</div>
+        </div>
+
+        <!-- Detalle: ingresos, ahorrado histórico, usado -->
         <div class="kpi-grid" style="margin-bottom:12px">
           <div class="kpi">
             <div class="kpi-label"><span data-i18n="lbl_total_ingresos">Total ingresos</span></div>
-            <div class="kpi-value" style="font-size:16px;color:var(--teal)" id="ac-ing">—</div>
+            <div class="kpi-value" style="font-size:15px;color:var(--teal)" id="ac-ing">—</div>
           </div>
           <div class="kpi">
-            <div class="kpi-label"><span data-i18n="lbl_ahorrado">Ahorrado</span></div>
-            <div class="kpi-value" style="font-size:16px;color:var(--teal)" id="ac-aho">—</div>
+            <div class="kpi-label">Ahorrado histórico</div>
+            <div class="kpi-value" style="font-size:15px;color:var(--teal)" id="ac-aho">—</div>
           </div>
-          <div class="kpi">
+          <div class="kpi" style="grid-column:span 2">
             <div class="kpi-label"><span data-i18n="lbl_usado_ahorros">Usado de ahorros</span></div>
-            <div class="kpi-value" style="font-size:16px;color:var(--red)" id="ac-usado">—</div>
-          </div>
-          <div class="kpi" style="border:1px solid var(--teal)">
-            <div class="kpi-label"><span data-i18n="lbl_disponible">Disponible</span></div>
-            <div class="kpi-value" style="font-size:16px;color:var(--teal)" id="ac-disp">—</div>
+            <div class="kpi-value" style="font-size:15px;color:var(--red)" id="ac-usado">—</div>
           </div>
         </div>
         <div id="ac-gastos-list"></div>
@@ -1713,13 +1727,28 @@ tr:last-child td { border: none; }
         <div id="inv-desglose-tipos" style="margin-bottom:10px"></div>
         <div id="inv-retiros-list"></div>
       </div>
+
+      <div id="inspiracion-card" onclick="abrirFilosofia()" style="background:rgba(240,165,0,0.06);border:0.5px solid rgba(240,165,0,0.3);border-radius:14px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer">
+        <div style="width:34px;height:34px;background:rgba(240,165,0,0.12);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📖</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;color:#f0a500"><span data-i18n="filosofia_titulo">La bolsa o la vida</span></div>
+          <div style="font-size:11px;color:#664;margin-top:1px"><span data-i18n="filosofia_sub">Ver los 9 pasos · Inspiración</span></div>
+        </div>
+        <div style="color:#664;font-size:16px">›</div>
+      </div>
+
+      <div style="display:flex;justify-content:center;margin-bottom:10px">
+        <button onclick="exportarPDF()" style="background:transparent;border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:12px;padding:9px 18px;cursor:pointer;display:flex;align-items:center;gap:6px">
+          <span style="font-size:14px">📄</span><span data-i18n="btn_exportar_pdf"> Exportar PDF</span>
+        </button>
+      </div>
     </div>
 
     <!-- CARGAR -->
     <div id="pg-cargar" class="page">
       <div class="card">
         <div class="card-title"><span data-i18n="card_nuevo_gasto">Nuevo gasto</span></div>
-        <div class="field"><label data-i18n="lbl_descripcion">Descripción</label><input type="text" id="f-desc" placeholder="Ej: supermercado, nafta..."></div>
+        <div class="field"><label data-i18n="lbl_descripcion">Descripción</label><input type="text" id="f-desc" placeholder="Ej: supermercado, nafta..." oninput="autoDetectCat(this.value)"></div>
         <div class="row2">
           <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="f-monto" placeholder="0" inputmode="decimal"></div>
           <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="f-fecha"></div>
@@ -1734,6 +1763,72 @@ tr:last-child td { border: none; }
         </div>
         <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="f-mes"></select></div>
         <button class="btn btn-primary" onclick="guardarGasto()"><span data-i18n="btn_guardar_gasto">Guardar gasto</span></button>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span data-i18n="card_sueldo">Sueldo del mes</span></div>
+        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="s-mes" onchange="renderQuick()"></select></div>
+        <div class="row2">
+          <div class="field"><label data-i18n="lbl_sueldo_campo">Sueldo ($)</label><input type="number" id="s-sueldo" placeholder="0" inputmode="decimal"></div>
+          <div class="field"><label data-i18n="lbl_ahorro_campo">Ahorro ($)</label><input type="number" id="s-ahorro" placeholder="0" inputmode="decimal"></div>
+        </div>
+        <button class="btn btn-primary" onclick="guardarSueldo()" style="margin-bottom:16px"><span data-i18n="btn_guardar_sueldo">Guardar ingresos</span></button>
+
+        <!-- Otros ingresos -->
+        <div style="margin-bottom:10px">
+          <div style="font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Otros ingresos</div>
+          <div id="extras-list" style="margin-bottom:8px"></div>
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <div class="field" style="flex:2;margin-bottom:0"><input type="text" id="s-extra-desc" placeholder="Descripción (ej: Freelance)" style="font-size:13px"></div>
+            <div class="field" style="flex:1;margin-bottom:0"><input type="number" id="s-extra-monto" placeholder="$" inputmode="decimal" style="font-size:13px"></div>
+            <button onclick="agregarExtra()" style="background:var(--teal);border:none;border-radius:var(--r-sm);color:#fff;font-size:18px;font-weight:600;width:36px;height:36px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1">+</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div id="quick-summary" style="font-size:13px;color:var(--text2);text-align:center;padding:8px 0"><span data-i18n="lbl_quick_sel">Seleccioná un mes arriba</span></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:var(--amber)"><span data-i18n="card_gasto_ahorros">Gasto con ahorros</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_gasto_ahorros_desc">Registrá un gasto que sale de tu ahorro acumulado. Elegí de qué mes descontarlo.</div>
+        <div class="field"><label data-i18n="lbl_descripcion">Descripción</label><input type="text" id="ga-desc" placeholder="Ej: viaje, refacción..."></div>
+        <div class="row2">
+          <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="ga-monto" placeholder="0" inputmode="decimal"></div>
+          <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="ga-fecha"></div>
+        </div>
+        <div class="field"><label data-i18n="lbl_descontar_mes">Descontar del mes</label><select id="ga-mes"></select></div>
+        <div class="field"><label data-i18n="lbl_motivo">Motivo</label>
+          <select id="ga-motivo"></select>
+        </div>
+        <button class="btn" style="background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber);font-size:15px;font-weight:600;padding:14px" onclick="guardarGastoAhorro()"><span data-i18n="btn_registrar_gasto_aho">Registrar gasto con ahorros</span></button>
+      </div>
+
+      <div class="card" style="border-color:rgba(127,119,221,0.3)">
+        <div class="card-title" style="color:#1DBA87"><span data-i18n="card_cargar_inv">Cargar inversión</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_cargar_inv_desc">Registrá cuánto invertiste este mes y en qué instrumento.</div>
+        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="inv-mes-sel" onchange="renderInvQuick()"></select></div>
+        <div class="row2">
+          <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="s-inversion" placeholder="0" inputmode="decimal" style="border-color:rgba(127,119,221,0.3)"></div>
+          <div class="field"><label data-i18n="lbl_tipo">Tipo</label><select id="s-inv-tipo" style="border-color:rgba(127,119,221,0.3);background:var(--bg3);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px 14px;width:100%;appearance:none;-webkit-appearance:none;outline:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 14px center;padding-right:36px"></select></div>
+        </div>
+        <button class="btn" style="background:rgba(127,119,221,0.12);color:#1DBA87;border:0.5px solid #1DBA87;font-size:15px;font-weight:600;padding:14px;margin-bottom:14px" onclick="guardarInversion()"><span data-i18n="btn_guardar_inv">Guardar inversión</span></button>
+        <div id="inv-quick" style="font-size:13px;color:var(--text2);text-align:center;padding:6px 0"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:#1DBA87"><span data-i18n="card_retiro_inv">Retiro de inversiones</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_retiro_inv_desc">Registrá un retiro de tu cartera de inversiones. Se descuenta del saldo acumulado.</div>
+        <div class="field"><label data-i18n="lbl_descripcion">Descripción</label><input type="text" id="ri-desc" placeholder="Ej: venta acciones, rescate fondo..."></div>
+        <div class="row2">
+          <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="ri-monto" placeholder="0" inputmode="decimal"></div>
+          <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="ri-fecha"></div>
+        </div>
+        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="ri-mes"></select></div>
+        <div class="field"><label data-i18n="lbl_motivo">Motivo</label>
+          <select id="ri-motivo"></select>
+        </div>
+        <button class="btn" style="background:rgba(127,119,221,0.12);color:#1DBA87;border:0.5px solid #1DBA87;font-size:15px;font-weight:600;padding:14px" onclick="guardarRetiroInversion()"><span data-i18n="btn_registrar_retiro">Registrar retiro</span></button>
       </div>
 
       <div class="card">
@@ -1771,84 +1866,25 @@ tr:last-child td { border: none; }
         <div id="p-inputs" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"></div>
         <button class="btn" style="background:var(--blue-dim);color:var(--blue);border:0.5px solid var(--blue);font-size:15px;font-weight:600;padding:14px" onclick="guardarPresupuesto()"><span data-i18n="btn_guardar_presupuesto">Guardar presupuesto</span></button>
       </div>
-
-      <div class="card">
-        <div class="card-title" style="color:var(--amber)"><span data-i18n="card_gasto_ahorros">Gasto con ahorros</span></div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_gasto_ahorros_desc">Registrá un gasto que sale de tu ahorro acumulado. Elegí de qué mes descontarlo.</div>
-        <div class="field"><label data-i18n="lbl_descripcion">Descripción</label><input type="text" id="ga-desc" placeholder="Ej: viaje, refacción..."></div>
-        <div class="row2">
-          <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="ga-monto" placeholder="0" inputmode="decimal"></div>
-          <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="ga-fecha"></div>
-        </div>
-        <div class="field"><label data-i18n="lbl_descontar_mes">Descontar del mes</label><select id="ga-mes"></select></div>
-        <div class="field"><label data-i18n="lbl_motivo">Motivo</label>
-          <select id="ga-motivo"></select>
-        </div>
-        <button class="btn" style="background:var(--amber-dim);color:var(--amber);border:0.5px solid var(--amber);font-size:15px;font-weight:600;padding:14px" onclick="guardarGastoAhorro()"><span data-i18n="btn_registrar_gasto_aho">Registrar gasto con ahorros</span></button>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="color:#1DBA87"><span data-i18n="card_retiro_inv">Retiro de inversiones</span></div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_retiro_inv_desc">Registrá un retiro de tu cartera de inversiones. Se descuenta del saldo acumulado.</div>
-        <div class="field"><label data-i18n="lbl_descripcion">Descripción</label><input type="text" id="ri-desc" placeholder="Ej: venta acciones, rescate fondo..."></div>
-        <div class="row2">
-          <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="ri-monto" placeholder="0" inputmode="decimal"></div>
-          <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="ri-fecha"></div>
-        </div>
-        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="ri-mes"></select></div>
-        <div class="field"><label data-i18n="lbl_motivo">Motivo</label>
-          <select id="ri-motivo"></select>
-        </div>
-        <button class="btn" style="background:rgba(127,119,221,0.12);color:#1DBA87;border:0.5px solid #1DBA87;font-size:15px;font-weight:600;padding:14px" onclick="guardarRetiroInversion()"><span data-i18n="btn_registrar_retiro">Registrar retiro</span></button>
-      </div>
-
-      <div class="card" style="border-color:rgba(127,119,221,0.3)">
-        <div class="card-title" style="color:#1DBA87"><span data-i18n="card_cargar_inv">Cargar inversión</span></div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_cargar_inv_desc">Registrá cuánto invertiste este mes y en qué instrumento.</div>
-        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="inv-mes-sel" onchange="renderInvQuick()"></select></div>
-        <div class="row2">
-          <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="s-inversion" placeholder="0" inputmode="decimal" style="border-color:rgba(127,119,221,0.3)"></div>
-          <div class="field"><label data-i18n="lbl_tipo">Tipo</label><select id="s-inv-tipo" style="border-color:rgba(127,119,221,0.3);background:var(--bg3);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px 14px;width:100%;appearance:none;-webkit-appearance:none;outline:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 14px center;padding-right:36px"></select></div>
-        </div>
-        <button class="btn" style="background:rgba(127,119,221,0.12);color:#1DBA87;border:0.5px solid #1DBA87;font-size:15px;font-weight:600;padding:14px;margin-bottom:14px" onclick="guardarInversion()"><span data-i18n="btn_guardar_inv">Guardar inversión</span></button>
-        <div id="inv-quick" style="font-size:13px;color:var(--text2);text-align:center;padding:6px 0"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span data-i18n="card_sueldo">Sueldo del mes</span></div>
-        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="s-mes" onchange="renderQuick()"></select></div>
-        <div class="row2">
-          <div class="field"><label data-i18n="lbl_sueldo_campo">Sueldo ($)</label><input type="number" id="s-sueldo" placeholder="0" inputmode="decimal"></div>
-          <div class="field"><label data-i18n="lbl_ahorro_campo">Ahorro ($)</label><input type="number" id="s-ahorro" placeholder="0" inputmode="decimal"></div>
-        </div>
-        <button class="btn btn-primary" onclick="guardarSueldo()" style="margin-bottom:16px"><span data-i18n="btn_guardar_sueldo">Guardar ingresos</span></button>
-
-        <!-- Otros ingresos -->
-        <div style="margin-bottom:10px">
-          <div style="font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Otros ingresos</div>
-          <div id="extras-list" style="margin-bottom:8px"></div>
-          <div style="display:flex;gap:8px;align-items:flex-end">
-            <div class="field" style="flex:2;margin-bottom:0"><input type="text" id="s-extra-desc" placeholder="Descripción (ej: Freelance)" style="font-size:13px"></div>
-            <div class="field" style="flex:1;margin-bottom:0"><input type="number" id="s-extra-monto" placeholder="$" inputmode="decimal" style="font-size:13px"></div>
-            <button onclick="agregarExtra()" style="background:var(--teal);border:none;border-radius:var(--r-sm);color:#fff;font-size:18px;font-weight:600;width:36px;height:36px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1">+</button>
-          </div>
-        </div>
-
-        <div class="divider"></div>
-        <div id="quick-summary" style="font-size:13px;color:var(--text2);text-align:center;padding:8px 0"><span data-i18n="lbl_quick_sel">Seleccioná un mes arriba</span></div>
-      </div>
     </div>
 
     <!-- HISTORIAL -->
     <div id="pg-historial" class="page">
       <div class="card" style="padding:12px">
+        <div style="margin-bottom:10px">
+          <input type="text" id="h-search" placeholder="🔍 Buscar por descripción..." oninput="renderHistorial()"
+            style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;outline:none;box-sizing:border-box">
+        </div>
         <div class="row2" style="margin-bottom:10px">
           <select id="h-mes" onchange="renderHistorial()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;appearance:none;-webkit-appearance:none;width:100%"></select>
           <select id="h-cat" onchange="renderHistorial()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 10px;appearance:none;-webkit-appearance:none;width:100%">
             <option value="">Todas</option>
           </select>
         </div>
-        <div id="h-summary" style="font-size:12px;color:var(--text2)"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+          <div id="h-summary" style="font-size:12px;color:var(--text2);flex:1"></div>
+          <button id="h-toggle-compacto" onclick="toggleHistCompacto()" style="background:transparent;border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:11px;padding:5px 10px;cursor:pointer;white-space:nowrap">≡ Vista compacta</button>
+        </div>
       </div>
       <div class="card" id="h-chart-card" style="display:none;padding:14px">
         <div style="font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px" data-i18n="lbl_gastos_semana">Gastos por semana del mes</div>
@@ -1959,100 +1995,6 @@ tr:last-child td { border: none; }
       <!-- AJUSTES -->
     <div id="pg-ajustes" class="page">
 
-      <div class="card">
-        <div class="card-title"><span data-i18n="card_meses">Meses activos</span></div>
-        <div id="meses-list"></div>
-        <button class="btn" onclick="toggleAgregarMes()" id="btn-agregar-mes" style="width:100%;margin-top:10px;font-size:13px;padding:10px;border-style:dashed;color:var(--text2)"><span data-i18n="btn_agregar_mes">+ Agregar mes</span></button>
-        <div id="agregar-mes-panel" style="display:none;margin-top:10px"></div>
-      </div>
-
-      
-
-      <div class="card">
-        <div class="card-title"><span data-i18n="card_subcats">Subcategorías</span></div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_subcats_desc">Personalizá las subcategorías de cada categoría.</div>
-        <div class="field">
-          <label data-i18n="lbl_categoria">Categoría</label>
-          <select id="sc-cat-sel" onchange="renderSubcatEditor()" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:11px 12px;appearance:none;-webkit-appearance:none;outline:none"></select>
-        </div>
-        <div id="sc-list" style="margin:10px 0"></div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <input type="text" id="sc-new-input" data-i18n-attr="placeholder" data-i18n="lbl_nueva_subcat_ph" placeholder="Nueva subcategoría..." style="flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;outline:none">
-          <button class="btn" onclick="agregarSubcat()" style="padding:10px 16px;font-size:14px"><span data-i18n="btn_agregar">Agregar</span></button>
-        </div>
-        <button class="btn" onclick="resetSubcats()" style="margin-top:10px;font-size:12px;color:var(--text3);border-color:var(--border);padding:8px"><span data-i18n="btn_restaurar">Restaurar por defecto</span></button>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="color:#1DBA87"><span data-i18n="card_pareja">Modo pareja</span></div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_pareja_desc">Activá el modo hogar para ver los gastos divididos entre vos y tu pareja.</div>
-        <div id="pareja-config-off">
-          <div class="row2" style="margin-bottom:10px">
-            <div class="field"><label data-i18n="lbl_tu_nombre">Tu nombre</label><input type="text" id="aj-mi-nombre" placeholder="Ej: Juan" value="Yo"></div>
-            <div class="field"><label data-i18n="lbl_nombre_pareja">Nombre pareja</label><input type="text" id="aj-su-nombre" placeholder="Ej: María"></div>
-          </div>
-          <button class="btn" onclick="activarParejaDesdeAjustes()" style="background:#0a2a1f;color:#1DBA87;border:0.5px solid #1DBA87;font-size:14px;padding:12px"><span data-i18n="btn_activar_pareja">Activar modo pareja</span></button>
-        </div>
-        <div id="pareja-config-on" style="display:none">
-          <div style="font-size:13px;color:var(--text2);margin-bottom:10px" id="pareja-config-label"></div>
-          <button class="btn" onclick="desactivarPareja()" style="font-size:13px;padding:10px"><span data-i18n="btn_desactivar_pareja">Desactivar modo pareja</span></button>
-        </div>
-      </div>
-
-      
-
-      
-
-      
-
-      <div class="card">
-        <div class="card-title"><span data-i18n="card_datos">Datos de la app</span></div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6" data-i18n="lbl_datos_desc">
-          Tus gastos y sueldos se guardan en este dispositivo. Si querés empezar de cero podés borrar todos los datos cargados (los meses y datos históricos no se borran).
-        </div>
-        <button class="btn" style="background:var(--red-dim);color:var(--red);border:0.5px solid var(--red);font-size:14px;padding:12px" onclick="confirmarBorrar()"><span data-i18n="btn_borrar_datos">Borrar gastos y sueldos cargados</span></button>
-        <div style="height:10px"></div>
-        <button class="btn" onclick="verOnboarding()" style="font-size:14px;padding:12px"><span data-i18n="btn_ver_bienvenida">Ver pantalla de bienvenida</span></button>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span data-i18n="card_idioma">Idioma</span></div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5"><span data-i18n="lbl_idioma_desc">Cambiá el idioma de la app.</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-          <button onclick="setLang('es')" id="lang-btn-es" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇪🇸 Español</button>
-          <button onclick="setLang('en')" id="lang-btn-en" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇺🇸 English</button>
-          <button onclick="setLang('pt')" id="lang-btn-pt" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇧🇷 Português</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><span data-i18n="card_resumen_aj">Resumen</span></div>
-        
-      <div class="card">
-        <div class="card-title" data-i18n="card_privacidad">Privacidad y datos</div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px" data-i18n="priv_desc">
-          Tus datos se almacenan de forma segura. Podés solicitar la eliminación completa de tu cuenta y datos en cualquier momento.
-        </div>
-        <a href="https://docs.google.com/document/d/10hCMwuDhG5rXffkJNSiYLzXS3jHHct5M8Q8GR4VaOPo/edit"
-           target="_blank" rel="noopener"
-           style="display:block;padding:12px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--blue);font-size:13px;text-decoration:none;margin-bottom:10px;text-align:center">
-          📄 <span data-i18n="priv_policy_link">Ver Política de Privacidad</span>
-        </a>
-        <a href="mailto:finko2026@gmail.com?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20datos%20-%20Finko"
-           style="display:block;padding:12px;background:var(--red-dim);border:0.5px solid var(--red);border-radius:var(--r-sm);color:var(--red);font-size:13px;text-decoration:none;margin-bottom:10px;text-align:center">
-          🗑️ <span data-i18n="priv_delete_request">Solicitar eliminación de mis datos</span>
-        </a>
-        <div style="font-size:11px;color:var(--text3);line-height:1.5;margin-top:8px">
-          <span data-i18n="priv_contact">Contacto: finko2026@gmail.com</span><br>
-          <span data-i18n="priv_response">Respondemos en un plazo de 48 horas.</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" data-i18n="card_tutorial">Tutorial</div>
-        <button class="btn" onclick="startTutorial()" style="font-size:14px;padding:12px">🎓 <span data-i18n="btn_ver_tutorial">Ver tutorial de uso</span></button>
-      </div>
-
       <div class="card" id="card-auth-ajustes">
         <div class="card-title" data-i18n="card_sesion">Sesión</div>
         <!-- Usuario logueado -->
@@ -2075,9 +2017,93 @@ tr:last-child td { border: none; }
           <button class="btn" onclick="doRegisterAjustes()" style="font-size:13px;padding:10px;color:var(--text2)">Crear cuenta nueva</button>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-title"><span data-i18n="card_idioma">Idioma</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5"><span data-i18n="lbl_idioma_desc">Cambiá el idioma de la app.</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <button onclick="setLang('es')" id="lang-btn-es" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇪🇸 Español</button>
+          <button onclick="setLang('en')" id="lang-btn-en" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇺🇸 English</button>
+          <button onclick="setLang('pt')" id="lang-btn-pt" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇧🇷 Português</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:#1DBA87"><span data-i18n="card_pareja">Modo pareja</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_pareja_desc">Activá el modo hogar para ver los gastos divididos entre vos y tu pareja.</div>
+        <div id="pareja-config-off">
+          <div class="row2" style="margin-bottom:10px">
+            <div class="field"><label data-i18n="lbl_tu_nombre">Tu nombre</label><input type="text" id="aj-mi-nombre" placeholder="Ej: Juan" value="Yo"></div>
+            <div class="field"><label data-i18n="lbl_nombre_pareja">Nombre pareja</label><input type="text" id="aj-su-nombre" placeholder="Ej: María"></div>
+          </div>
+          <button class="btn" onclick="activarParejaDesdeAjustes()" style="background:#0a2a1f;color:#1DBA87;border:0.5px solid #1DBA87;font-size:14px;padding:12px"><span data-i18n="btn_activar_pareja">Activar modo pareja</span></button>
+        </div>
+        <div id="pareja-config-on" style="display:none">
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px" id="pareja-config-label"></div>
+          <button class="btn" onclick="desactivarPareja()" style="font-size:13px;padding:10px"><span data-i18n="btn_desactivar_pareja">Desactivar modo pareja</span></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span data-i18n="card_meses">Meses activos</span></div>
+        <div id="meses-list"></div>
+        <button class="btn" onclick="toggleAgregarMes()" id="btn-agregar-mes" style="width:100%;margin-top:10px;font-size:13px;padding:10px;border-style:dashed;color:var(--text2)"><span data-i18n="btn_agregar_mes">+ Agregar mes</span></button>
+        <div id="agregar-mes-panel" style="display:none;margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span data-i18n="card_subcats">Subcategorías</span></div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_subcats_desc">Personalizá las subcategorías de cada categoría.</div>
+        <div class="field">
+          <label data-i18n="lbl_categoria">Categoría</label>
+          <select id="sc-cat-sel" onchange="renderSubcatEditor()" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:11px 12px;appearance:none;-webkit-appearance:none;outline:none"></select>
+        </div>
+        <div id="sc-list" style="margin:10px 0"></div>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <input type="text" id="sc-new-input" data-i18n-attr="placeholder" data-i18n="lbl_nueva_subcat_ph" placeholder="Nueva subcategoría..." style="flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;outline:none">
+          <button class="btn" onclick="agregarSubcat()" style="padding:10px 16px;font-size:14px"><span data-i18n="btn_agregar">Agregar</span></button>
+        </div>
+        <button class="btn" onclick="resetSubcats()" style="margin-top:10px;font-size:12px;color:var(--text3);border-color:var(--border);padding:8px"><span data-i18n="btn_restaurar">Restaurar por defecto</span></button>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="card_tutorial">Tutorial</div>
+        <button class="btn" onclick="startTutorial()" style="font-size:14px;padding:12px">🎓 <span data-i18n="btn_ver_tutorial">Ver tutorial de uso</span></button>
+        <div style="height:10px"></div>
+        <button class="btn" onclick="verOnboarding()" style="font-size:14px;padding:12px"><span data-i18n="btn_ver_bienvenida">Ver pantalla de bienvenida</span></button>
+      </div>
+
+      <div class="card">
+        <div class="card-title" data-i18n="card_privacidad">Privacidad y datos</div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px" data-i18n="priv_desc">
+          Tus datos se almacenan de forma segura. Podés solicitar la eliminación completa de tu cuenta y datos en cualquier momento.
+        </div>
+        <a href="https://docs.google.com/document/d/10hCMwuDhG5rXffkJNSiYLzXS3jHHct5M8Q8GR4VaOPo/edit"
+           target="_blank" rel="noopener"
+           style="display:block;padding:12px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--blue);font-size:13px;text-decoration:none;margin-bottom:10px;text-align:center">
+          📄 <span data-i18n="priv_policy_link">Ver Política de Privacidad</span>
+        </a>
+        <a href="mailto:finko2026@gmail.com?subject=Solicitud%20de%20eliminaci%C3%B3n%20de%20datos%20-%20Finko"
+           style="display:block;padding:12px;background:var(--red-dim);border:0.5px solid var(--red);border-radius:var(--r-sm);color:var(--red);font-size:13px;text-decoration:none;margin-bottom:10px;text-align:center">
+          🗑️ <span data-i18n="priv_delete_request">Solicitar eliminación de mis datos</span>
+        </a>
+        <div style="font-size:11px;color:var(--text3);line-height:1.5;margin-top:8px">
+          <span data-i18n="priv_contact">Contacto: finko2026@gmail.com</span><br>
+          <span data-i18n="priv_response">Respondemos en un plazo de 48 horas.</span>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-title" data-i18n="nav_resumen">Resumen</div>
         <div id="ajustes-resumen" style="font-size:13px;color:var(--text2);line-height:1.8"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="color:var(--red)"><span data-i18n="card_datos">Datos de la app</span></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6" data-i18n="lbl_datos_desc">
+          Tus gastos y sueldos se guardan en este dispositivo. Si querés empezar de cero podés borrar todos los datos cargados (los meses y datos históricos no se borran).
+        </div>
+        <button class="btn" style="background:var(--red-dim);color:var(--red);border:0.5px solid var(--red);font-size:14px;padding:12px" onclick="confirmarBorrar()"><span data-i18n="btn_borrar_datos">Borrar gastos y sueldos cargados</span></button>
       </div>
 
     </div>
@@ -2109,6 +2135,8 @@ tr:last-child td { border: none; }
     </button>
   </div>
   <div id="pro-tooltip" class="pro-tooltip"></div>
+  <button id="fab-add" onclick="fabAddGasto()" title="Cargar gasto rápido"
+    style="position:fixed;right:18px;bottom:calc(74px + var(--safe-bottom));width:54px;height:54px;border-radius:50%;background:#1DBA87;border:none;color:#fff;font-size:28px;font-weight:300;line-height:1;cursor:pointer;z-index:99;box-shadow:0 4px 12px rgba(29,186,135,0.35);-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;transition:transform .15s">+</button>
 </div>
 
 <div id="toast"></div>
@@ -2379,6 +2407,18 @@ async function navTo(pg, btn, direction) {
     if (!ok) { showProTooltip(proMap[pg]); return; }
   }
 
+  // ── DATOS SIN GUARDAR EN "CARGAR" ──
+  const currentPage = document.querySelector('.page.active');
+  if (currentPage && currentPage.id === 'pg-cargar' && pg !== 'cargar') {
+    if (hayDatosSinGuardar()) {
+      showConfirm('Tenés datos sin guardar en el formulario. ¿Querés salir igual?', function() {
+        limpiarFormulariosCargar();
+        navTo(pg, btn, direction);
+      });
+      return;
+    }
+  }
+
   // ── HAPTIC FEEDBACK ──
   if (navigator.vibrate) navigator.vibrate(10);
 
@@ -2403,6 +2443,13 @@ async function navTo(pg, btn, direction) {
 
   btn.classList.add('active');
   document.getElementById('content').scrollTop = 0;
+
+  // Ocultar FAB en Cargar y Ajustes
+  const fab = document.getElementById('fab-add');
+  if (fab) {
+    if (pg === 'cargar' || pg === 'ajustes') fab.classList.add('hidden');
+    else fab.classList.remove('hidden');
+  }
 
   if(pg==='dashboard') { buildMonthScroll(); renderKPIs(); renderCatBars(); renderChart(); renderAcumulado(); renderInversiones(); initParejaUI(); if(typeof vistaActual!=='undefined'&&vistaActual==='pareja') renderHogar(); }
   if(pg==='historial') renderHistorial();
@@ -2451,6 +2498,37 @@ function renderKPIs() {
   const est = tasa>=0.2?t('kpi_est_excelente'):tasa>=0.1?t('kpi_est_aceptable'):tasa!=null?t('kpi_est_revisar'):'—';
   setText('k-est', est);
   setText('hdr-title', getMonthDisplay(selMes));
+  renderResumenRapido();
+}
+
+/* ── RESUMEN RÁPIDO: HOY / AYER / ESTA SEMANA ──────────────────────── */
+function renderResumenRapido() {
+  const panel = document.getElementById('resumen-rapido');
+  if (!panel) return;
+  const hoy = new Date();
+  const hoyStr = hoy.toISOString().slice(0,10);
+  const ayer = new Date(hoy); ayer.setDate(ayer.getDate() - 1);
+  const ayerStr = ayer.toISOString().slice(0,10);
+  const inicioSemana = new Date(hoy);
+  const diaSem = hoy.getDay() === 0 ? 6 : hoy.getDay() - 1;
+  inicioSemana.setDate(inicioSemana.getDate() - diaSem);
+  const inicioStr = inicioSemana.toISOString().slice(0,10);
+
+  let gastoHoy = 0, gastoAyer = 0, gastoSemana = 0;
+  DATA.gastos.forEach(g => {
+    if (!g.fecha) return;
+    if (g.fecha === hoyStr) gastoHoy += g.monto;
+    if (g.fecha === ayerStr) gastoAyer += g.monto;
+    if (g.fecha >= inicioStr && g.fecha <= hoyStr) gastoSemana += g.monto;
+  });
+
+  const totalReciente = gastoHoy + gastoAyer + gastoSemana;
+  panel.style.display = totalReciente > 0 ? 'block' : 'none';
+
+  const setText = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setText('rr-hoy', gastoHoy > 0 ? fmt(gastoHoy) : '—');
+  setText('rr-ayer', gastoAyer > 0 ? fmt(gastoAyer) : '—');
+  setText('rr-semana', gastoSemana > 0 ? fmt(gastoSemana) : '—');
 }
 
 /* ── CAT BARS ───────────────────────────────────────────────────────────── */
@@ -2513,6 +2591,20 @@ function getMonthDisplay(m) {
 function renderCatBars() {
   const d = getMesData(selMes);
   const sorted = Object.entries(d.cats).filter(([cat])=>cat!=='Inversiones').sort((a,b)=>b[1]-a[1]).slice(0,7);
+
+  // Empty state: sin gastos en este mes
+  if (!sorted.length) {
+    const totalInv = (DATA.inversiones||[]).reduce((a,i)=>a+i.monto,0);
+    if (totalInv === 0) {
+      document.getElementById('cat-bars').innerHTML = `<div style="text-align:center;padding:20px 10px">
+        <div style="font-size:32px;margin-bottom:8px;opacity:.5">💸</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:3px">Sin gastos este mes</div>
+        <div style="font-size:11px;color:var(--text3)">Tus gastos aparecerán acá agrupados por categoría</div>
+      </div>`;
+      return;
+    }
+  }
+
   const max = sorted[0] ? sorted[0][1] : 1;
   document.getElementById('cat-bars').innerHTML = sorted.map(([cat,val]) => {
     const subs = d.subcatsMap[cat] ? Object.entries(d.subcatsMap[cat]).sort((a,b)=>b[1]-a[1]) : [];
@@ -2814,6 +2906,7 @@ function guardarGastoAhorro() {
   document.getElementById('ga-monto').value='';
   toast(t('toast_gasto_aho_ok'));
   renderAcumulado();
+  renderKPIs();
 }
 
 function guardarGasto() {
@@ -2830,6 +2923,8 @@ function guardarGasto() {
   save();
   document.getElementById('f-desc').value = '';
   document.getElementById('f-monto').value = '';
+  const catSel = document.getElementById('f-cat');
+  if (catSel) delete catSel.dataset.userSet;
   toast(t('toast_gasto_ok'));
   renderQuick();
 }
@@ -2906,7 +3001,7 @@ function renderMetas() {
   const acum=acumBruto-totalUsado;
   const avgAho=acumBruto/12;
 
-  document.getElementById('metas-list').innerHTML = DATA.metas.map((m,i) => {
+  document.getElementById('metas-list').innerHTML = DATA.metas.length ? DATA.metas.map((m,i) => {
     const ratio = Math.min(1, acum/m.objetivo);
     const falta = Math.max(0, m.objetivo - acum);
     const mesesFalta = ratio<1 ? Math.ceil(falta/avgAho) : 0;
@@ -2927,7 +3022,11 @@ function renderMetas() {
         <span>${ratio>=1 ? t('lbl_meta_alcanzada') : '~'+mesesFalta+' '+t('lbl_meses_mas')}</span>
       </div>
     </div>`;
-  }).join('');
+  }).join('') : `<div style="text-align:center;padding:30px 20px">
+    <div style="font-size:36px;margin-bottom:10px;opacity:.5">🎯</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:4px">Todavía no tenés metas</div>
+    <div style="font-size:12px;color:var(--text3);line-height:1.5">Definí objetivos de ahorro para alcanzarlos con foco.<br>Usá el formulario de abajo para crear tu primera meta.</div>
+  </div>`;
 
   document.getElementById('metas-resumen').innerHTML = `
     <div class="kpi-grid" style="margin-bottom:0">
@@ -3287,24 +3386,103 @@ function renderWeeklyChart(mes, items) {
 function renderHistorial() {
   const mes = document.getElementById('h-mes')?.value;
   const cat = document.getElementById('h-cat')?.value;
-  let items = DATA.gastos.filter(g => (!mes||g.mes===mes) && (!cat||(g.cat===cat||g.subcat===cat)));
+  const search = (document.getElementById('h-search')?.value || '').trim().toLowerCase();
+  let items = DATA.gastos.filter(g => {
+    if (mes && g.mes !== mes) return false;
+    if (cat && g.cat !== cat && g.subcat !== cat) return false;
+    if (search && !(g.desc || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
   items = items.slice().sort((a,b) => b.fecha.localeCompare(a.fecha));
   const total = items.reduce((a,g)=>a+g.monto,0);
   document.getElementById('h-summary').textContent = items.length
     ? `${items.length} ${t('lbl_historial_sep')} ${fmt(total)}`
-    : t('lbl_sin_gastos_filtro');
+    : '';
   const tbody = document.getElementById('hist-body');
-  if(!items.length) { tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text2);padding:20px">${t('lbl_sin_gastos')}</td></tr>`; return; }
-  tbody.innerHTML = items.map(g => `<tr>
-    <td style="color:var(--text2);font-size:12px">${g.fecha.slice(5)}</td>
-    <td><div style="font-size:13px;font-weight:500">${esc(g.desc)}</div>
-      <div style="font-size:11px;color:${CAT_COLOR[g.cat]||'#888'}">${getCatLabel(g.cat)}${g.subcat?' › '+esc(g.subcat):''}</div></td>
-    <td style="text-align:right;font-weight:500;font-family:'DM Mono',monospace;font-size:13px">${fmt(g.monto)}</td>
-    <td style="text-align:center;display:flex;gap:4px;justify-content:center">
-      <button class="btn-danger-sm" style="color:var(--blue);border-color:var(--border2)" onclick="abrirEdicion(${g.id})">✏</button>
-      <button class="btn-danger-sm" onclick="borrarGasto(${g.id})">✕</button>
-    </td></tr>`).join('');
+
+  // ── EMPTY STATE ──
+  if(!items.length) {
+    const tieneFiltros = search || mes || cat;
+    if (tieneFiltros) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:40px 20px">
+        <div style="font-size:36px;margin-bottom:10px;opacity:.5">🔎</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:4px">Sin resultados</div>
+        <div style="font-size:12px;color:var(--text3)">Probá cambiar los filtros o la búsqueda</div>
+      </td></tr>`;
+    } else {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:40px 20px">
+        <div style="font-size:36px;margin-bottom:10px;opacity:.5">📊</div>
+        <div style="font-size:14px;color:var(--text2);margin-bottom:4px">Todavía no cargaste gastos</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Empezá a registrar tus movimientos</div>
+        <button onclick="document.querySelectorAll('.nav-btn')[1].click()" style="background:var(--teal);color:#fff;border:none;border-radius:var(--r-sm);padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">Cargar primer gasto</button>
+      </td></tr>`;
+    }
+    renderWeeklyChart(mes, items);
+    return;
+  }
+
+  // ── MODO COMPRIMIDO ──
+  const compacto = localStorage.getItem('finko_hist_compacto') === '1';
+  const btnCompacto = document.getElementById('h-toggle-compacto');
+  if (btnCompacto) btnCompacto.textContent = compacto ? '☰ Vista normal' : '≡ Vista compacta';
+
+  if (compacto) {
+    tbody.innerHTML = items.map(g => `<tr style="border-bottom:0.5px solid var(--border)">
+      <td style="padding:6px 4px;font-size:11px;color:var(--text3);white-space:nowrap">${g.fecha.slice(5)}</td>
+      <td style="padding:6px 4px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:6px;height:6px;border-radius:50%;background:${CAT_COLOR[g.cat]||'#888'};flex-shrink:0"></span>
+          <span style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g.desc)}</span>
+        </div>
+      </td>
+      <td style="padding:6px 4px;text-align:right;font-weight:500;font-family:'DM Mono',monospace;font-size:12px;white-space:nowrap">${fmt(g.monto)}</td>
+      <td style="padding:6px 4px;text-align:center">
+        <button class="btn-danger-sm" style="color:var(--blue);border-color:var(--border2);font-size:11px;padding:3px 6px" onclick="abrirEdicion(${g.id})">✏</button>
+      </td></tr>`).join('');
+  } else {
+    tbody.innerHTML = items.map(g => `<tr>
+      <td style="color:var(--text2);font-size:12px">${g.fecha.slice(5)}</td>
+      <td><div style="font-size:13px;font-weight:500">${esc(g.desc)}</div>
+        <div style="font-size:11px;color:${CAT_COLOR[g.cat]||'#888'}">${getCatLabel(g.cat)}${g.subcat?' › '+esc(g.subcat):''}</div></td>
+      <td style="text-align:right;font-weight:500;font-family:'DM Mono',monospace;font-size:13px">${fmt(g.monto)}</td>
+      <td style="text-align:center;display:flex;gap:4px;justify-content:center">
+        <button class="btn-danger-sm" style="color:var(--teal);border-color:var(--border2)" onclick="duplicarGasto(${g.id})" title="Duplicar">⧉</button>
+        <button class="btn-danger-sm" style="color:var(--blue);border-color:var(--border2)" onclick="abrirEdicion(${g.id})">✏</button>
+        <button class="btn-danger-sm" onclick="borrarGasto(${g.id})">✕</button>
+      </td></tr>`).join('');
+  }
   renderWeeklyChart(mes, items);
+}
+
+function toggleHistCompacto() {
+  const actual = localStorage.getItem('finko_hist_compacto') === '1';
+  if (!actual) safeSet('finko_hist_compacto','1');
+  else localStorage.removeItem('finko_hist_compacto');
+  const btn = document.getElementById('h-toggle-compacto');
+  if (btn) btn.textContent = !actual ? '☰ Vista normal' : '≡ Vista compacta';
+  renderHistorial();
+}
+
+/* ── DUPLICAR GASTO ──────────────────────────────────────────────────────── */
+function duplicarGasto(id) {
+  const g = DATA.gastos.find(x => x.id === id);
+  if (!g) return;
+  const hoy = new Date().toISOString().slice(0,10);
+  const mesActual = selMes || g.mes;
+  DATA.gastos.push({
+    id: Date.now() + Math.floor(Math.random()*1000),
+    desc: g.desc,
+    monto: g.monto,
+    fecha: hoy,
+    cat: g.cat,
+    subcat: g.subcat,
+    mes: mesActual
+  });
+  save();
+  if (navigator.vibrate) navigator.vibrate(15);
+  toast('Gasto duplicado con fecha de hoy');
+  renderHistorial();
+  renderQuick();
 }
 
 /* ── TENDENCIAS PAGE ─────────────────────────────────────────────────────── */
@@ -4438,7 +4616,76 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-/* ── SWIPE NAVIGATION ──────────────────────────────────────────────── */
+/* ── AUTO-DETECCIÓN DE CATEGORÍA ───────────────────────────────────── */
+const CAT_KEYWORDS = {
+  'Alimentación': ['super','supermercado','disco','jumbo','coto','carrefour','tienda inglesa','devoto','geant','mercado','almacen','verduleria','carniceria','panaderia','panadería','pizzeria','pizzería','restaurante','restaurant','delivery','rappi','pedidosya','uber eats','starbucks','mcdonalds','mc donalds','burger','subway','cafe','café','bar','resto','comida','desayuno','almuerzo','cena','merienda','supermarket','groceries','food','lunch','dinner','breakfast','mercearia','padaria','restaurante','supermercado'],
+  'Transporte': ['nafta','combustible','gasolina','ypf','shell','axion','petrobras','esso','uber','cabify','didi','taxi','remis','omnibus','ómnibus','colectivo','bondi','tren','metro','subte','peaje','estacionamiento','parking','mecanico','mecánico','service','auto','moto','bicicleta','bici','gasoline','fuel','gas station','transport','parking','uber','combustível','gasolina','ônibus','metrô','pedagio','pedágio'],
+  'Salud': ['farmacia','pharmacy','farmácia','medico','médico','doctor','hospital','clinica','clínica','clinic','dentista','dentist','odontologia','psicologo','psicólogo','psicologa','psicóloga','psiquiatra','nutricionista','kinesiologo','kinesiólogo','remedio','remédio','medicina','medicine','vacuna','vacina','vaccine','laboratorio','laboratório','consulta','obra social','mutualista','farmashop','medicamento'],
+  'Servicios': ['luz','agua','gas','internet','wifi','fibertel','antel','movistar','claro','personal','telecentro','ute','ose','netflix','spotify','disney','hbo','prime','amazon prime','paramount','youtube','apple music','tidal','deezer','icloud','dropbox','google drive','onedrive','chatgpt','cable','directv','abono','suscripcion','suscripción','subscription','streaming','servicio','factura','bill'],
+  'Casa': ['alquiler','rent','renta','aluguel','hipoteca','mortgage','expensas','condominio','condomínio','reforma','mudanza','mudança','moving','muebles','furniture','móveis','decoracion','decoración','decoration','decoração','limpieza','cleaning','limpeza','ferreteria','ferretería','easy','sodimac','ikea','construccion','construcción','pintura','paint','tinta','jardín','jardin','garden','plantas'],
+  'Indumentaria': ['ropa','clothes','clothing','roupa','zapatillas','sneakers','tênis','tenis','zapatos','shoes','sapatos','remera','camiseta','tshirt','t-shirt','camisa','shirt','pantalon','pantalón','pants','jeans','vestido','dress','campera','jacket','abrigo','coat','adidas','nike','puma','reebok','zara','h&m','forever 21','bershka','pull&bear','uniqlo','gap','topshop','moda','fashion'],
+  'Ocio': ['cine','cinema','movie','pelicula','película','teatro','theater','theatre','teatro','concierto','concert','show','recital','festival','boliche','disco','bar','pub','entrada','ticket','ingresso','museo','museum','museu','parque','park','juego','juegos','game','games','jogo','jogos','playstation','xbox','nintendo','steam','spotify','viaje','trip','vacaciones','vacation','férias','hotel','airbnb','booking','avion','avión','flight','voo','despegar','pasaje','salida','gym','gimnasio','gimnásio','fitness','deporte','sport','esporte'],
+  'Varios': []
+};
+
+function autoDetectCat(texto) {
+  const desc = (texto || '').toLowerCase().trim();
+  if (desc.length < 3) return;
+  const catSelect = document.getElementById('f-cat');
+  if (!catSelect || catSelect.dataset.userSet === '1') return;
+
+  for (const [cat, keywords] of Object.entries(CAT_KEYWORDS)) {
+    if (keywords.some(kw => desc.includes(kw))) {
+      if (catSelect.value !== cat) {
+        const option = Array.from(catSelect.options).find(o => o.value === cat);
+        if (option) {
+          catSelect.value = cat;
+          if (typeof updateSubcat === 'function') updateSubcat();
+        }
+      }
+      return;
+    }
+  }
+}
+
+/* Marcar que el usuario eligió manualmente la categoría para no sobreescribir */
+document.addEventListener('DOMContentLoaded', () => {
+  const catSelect = document.getElementById('f-cat');
+  if (catSelect) {
+    catSelect.addEventListener('change', () => { catSelect.dataset.userSet = '1'; });
+  }
+  const descInput = document.getElementById('f-desc');
+  if (descInput) {
+    descInput.addEventListener('focus', () => {
+      if (catSelect) delete catSelect.dataset.userSet;
+    });
+  }
+});
+/* ── DETECCIÓN DE DATOS SIN GUARDAR ────────────────────────────────── */
+function hayDatosSinGuardar() {
+  const campos = ['f-desc','f-monto','ga-desc','ga-monto','ri-desc','ri-monto','s-inversion','s-extra-desc','s-extra-monto'];
+  return campos.some(id => {
+    const el = document.getElementById(id);
+    return el && el.value && el.value.trim() !== '';
+  });
+}
+
+function limpiarFormulariosCargar() {
+  ['f-desc','f-monto','ga-desc','ga-monto','ri-desc','ri-monto','s-inversion','s-extra-desc','s-extra-monto'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}
+
+function fabAddGasto() {
+  if (navigator.vibrate) navigator.vibrate(10);
+  const cargarBtn = document.querySelectorAll('.nav-btn')[1];
+  if (cargarBtn) navTo('cargar', cargarBtn);
+  setTimeout(() => {
+    const descInput = document.getElementById('f-desc');
+    if (descInput) descInput.focus();
+  }, 300);
+}
 (function() {
   const TABS = ['dashboard','cargar','historial','metas','tendencias','categorias','ajustes'];
   let touchStartX = 0, touchStartY = 0, swiping = false;
