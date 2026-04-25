@@ -59,48 +59,17 @@ function getTrialDaysLeft() {
 function isInTrial() { return getTrialDaysLeft() > 0; }
 
 async function isPro(featureKey) {
-  // sync_cloud SIEMPRE requiere Pro real, nunca entra por trial
-  if (featureKey === 'sync_cloud') {
-    if (_proCache !== null) return _proCache;
-    try {
-      const uid = localStorage.getItem('finko_user_id');
-      if (!uid || !supabaseClient) { _proCache = false; return false; }
-      const { data, error } = await supabaseClient
-        .from('user_pro').select('is_pro, expires_at').eq('user_id', uid).maybeSingle();
-      if (error || !data) { _proCache = false; return false; }
-      if (data.expires_at && new Date(data.expires_at) < new Date()) { _proCache = false; return false; }
-      _proCache = !!data.is_pro; return _proCache;
-    } catch (e) { _proCache = false; return false; }
-  }
-  // Para el resto: si está en trial, acceso libre
-  if (isInTrial()) return true;
-  // Si el trial venció, chequear Pro real
-  if (_proCache !== null) return _proCache;
-  try {
-    const uid = localStorage.getItem('finko_user_id');
-    if (!uid || !supabaseClient) { _proCache = false; return false; }
-    const { data, error } = await supabaseClient
-      .from('user_pro').select('is_pro, expires_at').eq('user_id', uid).maybeSingle();
-    if (error || !data) { _proCache = false; return false; }
-    if (data.expires_at && new Date(data.expires_at) < new Date()) { _proCache = false; return false; }
-    _proCache = !!data.is_pro; return _proCache;
-  } catch (e) {
-    console.warn('isPro error:', e);
-    _proCache = false; return false;
-  }
+  // App 100% gratis: todas las features están desbloqueadas
+  return true;
 }
 
 function invalidateProCache() { _proCache = null; }
 
 async function updateProLocks() {
-  const pro = await isPro('sync_cloud');
-  const inTrial = isInTrial();
-  document.querySelectorAll('.pro-lock').forEach(el => el.style.display = (pro || inTrial) ? 'none' : '');
-  // Mostrar badge PRO solo si es Pro, ocultar si es Free
+  // App 100% gratis: ocultamos cualquier candado y badge residual
+  document.querySelectorAll('.pro-lock').forEach(el => el.style.display = 'none');
   const badge = document.getElementById('hdr-badge');
-  if (badge) {
-    badge.style.display = pro ? '' : 'none';
-  }
+  if (badge) badge.style.display = 'none';
 }
 
 var _proTooltipTimer = null;
@@ -351,6 +320,23 @@ const LANG = {
     card_resumen_aj: 'Resumen',
     card_idioma: 'Idioma',
     lbl_idioma_desc: 'Cambiá el idioma de la app.',
+
+    // Cafecito
+    cafecito_title: 'Apoyar el proyecto',
+    cafecito_desc: 'Martifin es 100% gratis y sin publicidad. Si la app te ayudó a ordenar tus finanzas, podés invitarme un cafecito ☕. Cada aporte me motiva a seguir mejorándola.',
+    cafecito_btn: 'Invitame un cafecito',
+
+    // Inversiones - editar/borrar
+    lbl_ultimos_aportes: 'Últimos aportes',
+    btn_editar: 'Editar',
+    btn_borrar: 'Borrar',
+    conf_borrar_inv: '¿Borrar este aporte de inversión?',
+    prompt_nuevo_monto: 'Nuevo monto:',
+    toast_monto_invalido: 'Monto inválido',
+    toast_inv_del: 'Aporte borrado',
+    toast_inv_edit: 'Aporte actualizado',
+    toast_inv_no_borrar: 'No se puede borrar: dejaría saldo negativo',
+    toast_inv_no_editar: 'No se puede editar: dejaría saldo negativo',
 
     // Onboarding
     ob_empezar: 'Empezar gratis',
@@ -691,6 +677,23 @@ const LANG = {
     card_resumen_aj: 'Summary',
     card_idioma: 'Language',
     lbl_idioma_desc: 'Change the app language.',
+
+    // Cafecito
+    cafecito_title: 'Support the project',
+    cafecito_desc: 'Martifin is 100% free and ad-free. If the app helped you organize your finances, you can buy me a coffee ☕. Every contribution motivates me to keep improving it.',
+    cafecito_btn: 'Buy me a coffee',
+
+    // Investments - edit/delete
+    lbl_ultimos_aportes: 'Recent contributions',
+    btn_editar: 'Edit',
+    btn_borrar: 'Delete',
+    conf_borrar_inv: 'Delete this investment contribution?',
+    prompt_nuevo_monto: 'New amount:',
+    toast_monto_invalido: 'Invalid amount',
+    toast_inv_del: 'Contribution deleted',
+    toast_inv_edit: 'Contribution updated',
+    toast_inv_no_borrar: 'Cannot delete: would leave negative balance',
+    toast_inv_no_editar: 'Cannot edit: would leave negative balance',
     ob_empezar: 'Get started for free',
     ob_saltar: 'I already have data, skip',
     ob_como_usar: 'How will you use Martifin?',
@@ -1012,6 +1015,23 @@ const LANG = {
     card_resumen_aj: 'Resumo',
     card_idioma: 'Idioma',
     lbl_idioma_desc: 'Altere o idioma do app.',
+
+    // Cafecito
+    cafecito_title: 'Apoiar o projeto',
+    cafecito_desc: 'O Martifin é 100% gratuito e sem publicidade. Se o app te ajudou a organizar suas finanças, você pode me pagar um cafezinho ☕. Cada contribuição me motiva a continuar melhorando.',
+    cafecito_btn: 'Me pague um café',
+
+    // Investimentos - editar/excluir
+    lbl_ultimos_aportes: 'Últimos aportes',
+    btn_editar: 'Editar',
+    btn_borrar: 'Excluir',
+    conf_borrar_inv: 'Excluir este aporte de investimento?',
+    prompt_nuevo_monto: 'Novo valor:',
+    toast_monto_invalido: 'Valor inválido',
+    toast_inv_del: 'Aporte excluído',
+    toast_inv_edit: 'Aporte atualizado',
+    toast_inv_no_borrar: 'Não é possível excluir: deixaria saldo negativo',
+    toast_inv_no_editar: 'Não é possível editar: deixaria saldo negativo',
     ob_empezar: 'Começar gratuitamente',
     ob_saltar: 'Já tenho meus dados, pular',
     ob_como_usar: 'Como você vai usar o Martifin?',
@@ -1307,6 +1327,7 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
 .btn:active { opacity: .75; }
 .btn-primary { background: var(--teal); color: #000; }
 .btn-danger-sm { background: none; border: 0.5px solid var(--border2); color: var(--red); border-radius: var(--r-sm); padding: 4px 7px; cursor: pointer; font-size: 10px; font-family: 'DM Sans', sans-serif; min-width: 26px; }
+.btn-edit-sm { background: none; border: 0.5px solid var(--border2); color: var(--blue); border-radius: var(--r-sm); padding: 4px 7px; cursor: pointer; font-size: 11px; font-family: 'DM Sans', sans-serif; min-width: 26px; }
 .hist-actions { display: flex; gap: 3px; justify-content: flex-end; flex-wrap: nowrap; }
 
 /* BAR */
@@ -1354,7 +1375,7 @@ tr:last-child td { border: none; }
 
 @media print {
   body { background: #fff !important; color: #000 !important; }
-  #nav, #header, .btn, .btn-danger-sm, .month-scroll,
+  #nav, #header, .btn, .btn-danger-sm, .btn-edit-sm, .month-scroll,
   #inspiracion-card, #pareja-toggle, #filosofia-panel,
   #onboarding, #edit-modal, #ga-edit-modal, #toast,
   #reminder-banner { display: none !important; }
@@ -1442,7 +1463,7 @@ tr:last-child td { border: none; }
       </div>
       <div id="ob-modo-pareja" onclick="obSelectModo('pareja')" style="border:0.5px solid #222;border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:28px;transition:border .15s">
         <div style="width:40px;height:40px;background:#1a1a1a;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👫</div>
-        <div style="flex:1"><div style="font-size:15px;font-weight:500;color:#fff"><span data-i18n="ob_pareja">En pareja</span> <span style="background:#0a2a1f;color:#1DBA87;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-left:6px;border:0.5px solid #1a4a3a">PRO</span></div><div style="font-size:12px;color:#555;margin-top:2px" data-i18n="ob_pareja_sub">Gastos del hogar compartidos</div></div>
+        <div style="flex:1"><div style="font-size:15px;font-weight:500;color:#fff"><span data-i18n="ob_pareja">En pareja</span></div><div style="font-size:12px;color:#555;margin-top:2px" data-i18n="ob_pareja_sub">Gastos del hogar compartidos</div></div>
       </div>
       <div style="margin-top:auto;padding-bottom:32px">
         <button id="ob-btn-1" onclick="obNext(2)" disabled style="width:100%;padding:15px;background:#1a1a1a;border:none;border-radius:14px;color:#444;font-size:16px;font-weight:600;cursor:pointer"><span data-i18n="ob_continuar">Continuar</span></button>
@@ -1729,6 +1750,7 @@ tr:last-child td { border: none; }
           </div>
         </div>
         <div id="inv-desglose-tipos" style="margin-bottom:10px"></div>
+        <div id="inv-aportes-list"></div>
         <div id="inv-retiros-list"></div>
       </div>
 
@@ -2102,6 +2124,17 @@ tr:last-child td { border: none; }
         <div id="ajustes-resumen" style="font-size:13px;color:var(--text2);line-height:1.8"></div>
       </div>
 
+      <div class="card" style="background:linear-gradient(135deg, rgba(29,186,135,0.08), rgba(29,186,135,0.02));border:0.5px solid rgba(29,186,135,0.3)">
+        <div class="card-title" style="color:#1DBA87">☕ <span data-i18n="cafecito_title">Apoyar el proyecto</span></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+          <span data-i18n="cafecito_desc">Martifin es 100% gratis y sin publicidad. Si la app te ayudó a ordenar tus finanzas, podés invitarme un cafecito ☕. Cada aporte me motiva a seguir mejorándola.</span>
+        </div>
+        <a href="https://cafecito.app/martifin" target="_blank" rel="noopener noreferrer"
+           style="display:block;padding:14px;background:#1DBA87;color:#fff;border-radius:var(--r-sm);font-size:15px;font-weight:600;text-decoration:none;text-align:center;box-shadow:0 2px 8px rgba(29,186,135,0.25)">
+          ☕ <span data-i18n="cafecito_btn">Invitame un cafecito</span>
+        </a>
+      </div>
+
       <div class="card">
         <div class="card-title" style="color:var(--red)"><span data-i18n="card_datos">Datos de la app</span></div>
         <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6" data-i18n="lbl_datos_desc">
@@ -2126,13 +2159,13 @@ tr:last-child td { border: none; }
       <span class="nav-icon">☰</span><span data-i18n="nav_historial"><span>Historial</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('metas',this)">
-      <span class="pro-lock">🔒</span><span class="nav-icon">◎</span><span data-i18n="nav_metas"><span>Metas</span></span>
+      <span class="nav-icon">◎</span><span data-i18n="nav_metas"><span>Metas</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('tendencias',this)">
-      <span class="pro-lock">🔒</span><span class="nav-icon">◈</span><span data-i18n="nav_tendencias"><span>Tendencias</span></span>
+      <span class="nav-icon">◈</span><span data-i18n="nav_tendencias"><span>Tendencias</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('categorias',this)">
-      <span class="pro-lock">🔒</span><span class="nav-icon">⊛</span><span data-i18n="nav_categorias"><span>Categorías</span></span>
+      <span class="nav-icon">⊛</span><span data-i18n="nav_categorias"><span>Categorías</span></span>
     </button>
     <button class="nav-btn" onclick="navTo('ajustes',this)">
       <span class="nav-icon">⚙</span><span data-i18n="nav_ajustes"><span>Ajustes</span></span>
@@ -2720,6 +2753,29 @@ function renderInversiones() {
     }
   }
 
+  // ── Últimas inversiones cargadas (con editar/borrar) ──
+  const listaInv = document.getElementById('inv-aportes-list');
+  if(listaInv) {
+    const ultimasInv = allInv.slice(-5).reverse();
+    if(!ultimasInv.length) {
+      listaInv.innerHTML = '';
+    } else {
+      listaInv.innerHTML = '<div style="border-top:0.5px solid rgba(127,119,221,0.2);padding-top:10px;margin-top:4px">'
+        + `<div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">${t('lbl_ultimos_aportes')}</div>`
+        + ultimasInv.map(i=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border)">
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500">${esc(i.tipo)}</div>
+              <div style="font-size:11px;color:var(--text2)">${esc(i.mes)}${i.fecha?' · '+esc(i.fecha):''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="font-family:'DM Mono',monospace;font-size:13px;color:#1DBA87;font-weight:500">${fmt(i.monto)}</div>
+              <button class="btn-edit-sm" onclick="editarInversion(${i.id})" title="${t('btn_editar')}">✎</button>
+              <button class="btn-danger-sm" onclick="borrarInversion(${i.id})" title="${t('btn_borrar')}">✕</button>
+            </div>
+          </div>`).join('') + '</div>';
+    }
+  }
+
   // ── Últimos retiros ──
   const lista = document.getElementById('inv-retiros-list');
   if(!lista) return;
@@ -2796,6 +2852,39 @@ function guardarRetiroInversion() {
 function borrarRetiroInversion(id) {
   DATA.retirosInversion = (DATA.retirosInversion||[]).filter(r => r.id !== id);
   save(); renderInversiones(); toast(t('toast_retiro_del'));
+}
+
+function borrarInversion(id) {
+  const inv = (DATA.inversiones||[]).find(i => i.id === id);
+  if(!inv) return;
+  if(!confirm(t('conf_borrar_inv'))) return;
+  // Validar que no quede saldo negativo después de borrar
+  const totalInvSinEsta = (DATA.inversiones||[]).filter(i=>i.id!==id).reduce((a,i)=>a+i.monto,0);
+  const totalRetirado = (DATA.retirosInversion||[]).reduce((a,r)=>a+r.monto,0);
+  if(totalInvSinEsta < totalRetirado) {
+    toast(t('toast_inv_no_borrar'));
+    return;
+  }
+  DATA.inversiones = (DATA.inversiones||[]).filter(i => i.id !== id);
+  save(); renderInversiones(); renderInvQuick(); toast(t('toast_inv_del'));
+}
+
+function editarInversion(id) {
+  const inv = (DATA.inversiones||[]).find(i => i.id === id);
+  if(!inv) return;
+  const nuevoMonto = prompt(t('prompt_nuevo_monto'), inv.monto);
+  if(nuevoMonto === null) return;
+  const monto = parseFloat(nuevoMonto);
+  if(!monto || monto <= 0) { toast(t('toast_monto_invalido')); return; }
+  // Validar saldo
+  const totalInvSinEsta = (DATA.inversiones||[]).filter(i=>i.id!==id).reduce((a,i)=>a+i.monto,0);
+  const totalRetirado = (DATA.retirosInversion||[]).reduce((a,r)=>a+r.monto,0);
+  if((totalInvSinEsta + Math.round(monto)) < totalRetirado) {
+    toast(t('toast_inv_no_editar'));
+    return;
+  }
+  inv.monto = Math.round(monto);
+  save(); renderInversiones(); renderInvQuick(); toast(t('toast_inv_edit'));
 }
 
 function renderAcumulado() {
