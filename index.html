@@ -320,6 +320,10 @@ const LANG = {
     card_resumen_aj: 'Resumen',
     card_idioma: 'Idioma',
     lbl_idioma_desc: 'Cambiá el idioma de la app.',
+    card_swipe_tabs: 'Cambiar de pestaña deslizando',
+    lbl_swipe_tabs_desc: 'Permití pasar de una pestaña a otra deslizando el dedo de izquierda a derecha.',
+    toast_swipe_on: 'Swipe activado ✓',
+    toast_swipe_off: 'Swipe desactivado',
 
     // Cafecito
     cafecito_title: 'Apoyar el proyecto',
@@ -678,6 +682,10 @@ const LANG = {
     card_resumen_aj: 'Summary',
     card_idioma: 'Language',
     lbl_idioma_desc: 'Change the app language.',
+    card_swipe_tabs: 'Swipe between tabs',
+    lbl_swipe_tabs_desc: 'Allow switching tabs by swiping your finger left or right.',
+    toast_swipe_on: 'Swipe enabled ✓',
+    toast_swipe_off: 'Swipe disabled',
 
     // Cafecito
     cafecito_title: 'Support the project',
@@ -1017,6 +1025,10 @@ const LANG = {
     card_resumen_aj: 'Resumo',
     card_idioma: 'Idioma',
     lbl_idioma_desc: 'Altere o idioma do app.',
+    card_swipe_tabs: 'Trocar de aba deslizando',
+    lbl_swipe_tabs_desc: 'Permita trocar de aba deslizando o dedo da esquerda para a direita.',
+    toast_swipe_on: 'Deslize ativado ✓',
+    toast_swipe_off: 'Deslize desativado',
 
     // Cafecito
     cafecito_title: 'Apoiar o projeto',
@@ -1410,6 +1422,49 @@ tr:last-child td { border: none; }
   --red: #d63031; --red-dim: rgba(214,48,49,0.1);
   --amber: #d4850a; --amber-dim: rgba(212,133,10,0.1);
   --blue: #2d6eb5; --blue-dim: rgba(45,110,181,0.1);
+}
+
+/* ── SWITCH TIPO iOS ─────────────────────────────────────────── */
+.ios-switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 28px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.ios-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.ios-switch .slider {
+  position: absolute;
+  inset: 0;
+  background: var(--bg4);
+  border: 0.5px solid var(--border2);
+  border-radius: 999px;
+  transition: background .2s, border-color .2s;
+}
+.ios-switch .slider::before {
+  content: '';
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 2px;
+  top: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.ios-switch input:checked + .slider {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+.ios-switch input:checked + .slider::before {
+  transform: translateX(18px);
 }
 
 </style>
@@ -2054,6 +2109,19 @@ tr:last-child td { border: none; }
           <button onclick="setLang('es')" id="lang-btn-es" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇪🇸 Español</button>
           <button onclick="setLang('en')" id="lang-btn-en" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇺🇸 English</button>
           <button onclick="setLang('pt')" id="lang-btn-pt" style="padding:10px;border-radius:var(--r-sm);border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s">🇧🇷 Português</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px"><span data-i18n="card_swipe_tabs">Cambiar de pestaña deslizando</span></div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.5"><span data-i18n="lbl_swipe_tabs_desc">Permití pasar de una pestaña a otra deslizando el dedo de izquierda a derecha.</span></div>
+          </div>
+          <label class="ios-switch" aria-label="Activar swipe entre pestañas">
+            <input type="checkbox" id="swipe-tabs-toggle" onchange="toggleSwipeTabs(this.checked)">
+            <span class="slider"></span>
+          </label>
         </div>
       </div>
 
@@ -4710,6 +4778,50 @@ window.addEventListener('offline', () => {
   </div>
 </div>
 
+<!-- ── MODAL DE GASTO RÁPIDO (FAB) ─────────────────────────────────── -->
+<div id="quick-gasto-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center" onclick="if(event.target===this)cerrarGastoRapido()">
+  <div style="background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:16px;font-weight:600;color:var(--text)">Nuevo gasto</div>
+      <button onclick="cerrarGastoRapido()" style="background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;line-height:1;padding:0 4px" aria-label="Cerrar">×</button>
+    </div>
+
+    <div class="field">
+      <label data-i18n="lbl_descripcion">Descripción</label>
+      <input type="text" id="qf-desc" placeholder="Ej: supermercado, nafta..." oninput="autoDetectCatRapido(this.value)">
+    </div>
+
+    <div class="field">
+      <label data-i18n="lbl_monto">Monto ($)</label>
+      <input type="number" id="qf-monto" placeholder="0" inputmode="decimal">
+    </div>
+
+    <div class="field">
+      <label data-i18n="lbl_categoria">Categoría</label>
+      <select id="qf-cat" onchange="this.dataset.userSet='1';actualizarQfSubcat()"></select>
+    </div>
+
+    <button onclick="toggleQfMasOpciones()" style="width:100%;background:transparent;border:0.5px dashed var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:13px;padding:10px;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span>Más opciones</span><span id="qf-mas-flecha">▾</span>
+    </button>
+
+    <div id="qf-mas-opciones" style="display:none">
+      <div class="field" id="qf-subcat-field" style="display:none">
+        <label data-i18n="lbl_subcategoria">Subcategoría</label>
+        <select id="qf-subcat"></select>
+      </div>
+      <div class="row2">
+        <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="qf-fecha"></div>
+        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="qf-mes"></select></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="guardarGastoRapido()" style="width:100%;margin-top:4px">
+      <span data-i18n="btn_guardar_gasto">Guardar gasto</span>
+    </button>
+  </div>
+</div>
+
 <!-- ── PAYWALL MODAL ─────────────────────────────────────────────────── -->
 <div id="paywall-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--r);padding:28px 24px;width:100%;max-width:360px;text-align:center">
@@ -4828,13 +4940,188 @@ function limpiarFormulariosCargar() {
 
 function fabAddGasto() {
   if (navigator.vibrate) navigator.vibrate(10);
-  const cargarBtn = document.querySelectorAll('.nav-btn')[1];
-  if (cargarBtn) navTo('cargar', cargarBtn);
-  setTimeout(() => {
-    const descInput = document.getElementById('f-desc');
-    if (descInput) descInput.focus();
-  }, 300);
+  abrirGastoRapido();
 }
+
+/* ── MODAL DE GASTO RÁPIDO (FAB) ─────────────────────────────────────────── */
+function abrirGastoRapido() {
+  const modal = document.getElementById('quick-gasto-modal');
+  if (!modal) return;
+
+  const now = new Date();
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesActual = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+  const mesParaUsar = MONTHS.includes(mesActual) ? mesActual : MONTHS[MONTHS.length - 1];
+  const todayStr = now.toISOString().split('T')[0];
+
+  const qfCat = document.getElementById('qf-cat');
+  qfCat.innerHTML = CATS_LIST.map(c => `<option value="${c}">${getCatLabel(c)}</option>`).join('');
+  qfCat.value = CATS_LIST[0];
+  delete qfCat.dataset.userSet;
+
+  const qfMes = document.getElementById('qf-mes');
+  const rev = [...MONTHS].reverse();
+  qfMes.innerHTML = rev.map(m => `<option value="${m}">${getMonthDisplay(m)}</option>`).join('');
+  qfMes.value = mesParaUsar;
+
+  document.getElementById('qf-desc').value = '';
+  document.getElementById('qf-monto').value = '';
+  document.getElementById('qf-fecha').value = todayStr;
+
+  actualizarQfSubcat();
+
+  const masOpc = document.getElementById('qf-mas-opciones');
+  const flecha = document.getElementById('qf-mas-flecha');
+  if (masOpc) masOpc.style.display = 'none';
+  if (flecha) flecha.textContent = '▾';
+
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    const descInput = document.getElementById('qf-desc');
+    if (descInput) descInput.focus();
+  }, 100);
+}
+
+function cerrarGastoRapido(forzar) {
+  const modal = document.getElementById('quick-gasto-modal');
+  if (!modal) return;
+
+  if (forzar === true) {
+    modal.style.display = 'none';
+    return;
+  }
+
+  const desc = document.getElementById('qf-desc').value.trim();
+  const monto = document.getElementById('qf-monto').value.trim();
+
+  if (desc || monto) {
+    showConfirm('¿Descartar el gasto?', function() {
+      modal.style.display = 'none';
+    });
+    return;
+  }
+
+  modal.style.display = 'none';
+}
+
+function toggleQfMasOpciones() {
+  const masOpc = document.getElementById('qf-mas-opciones');
+  const flecha = document.getElementById('qf-mas-flecha');
+  if (!masOpc) return;
+  const oculto = masOpc.style.display === 'none';
+  masOpc.style.display = oculto ? 'block' : 'none';
+  if (flecha) flecha.textContent = oculto ? '▴' : '▾';
+}
+
+function actualizarQfSubcat() {
+  const cat = document.getElementById('qf-cat').value;
+  const field = document.getElementById('qf-subcat-field');
+  const sel = document.getElementById('qf-subcat');
+  if (!field || !sel) return;
+  const lista = getSubcatsList(cat);
+  if (lista.length) {
+    field.style.display = 'block';
+    sel.innerHTML = lista.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+    sel.value = lista[0];
+  } else {
+    field.style.display = 'none';
+  }
+}
+
+function autoDetectCatRapido(texto) {
+  const desc = (texto || '').toLowerCase().trim();
+  if (desc.length < 3) return;
+  const catSelect = document.getElementById('qf-cat');
+  if (!catSelect || catSelect.dataset.userSet === '1') return;
+
+  for (const [cat, keywords] of Object.entries(CAT_KEYWORDS)) {
+    if (keywords.some(kw => desc.includes(kw))) {
+      if (catSelect.value !== cat) {
+        const opt = Array.from(catSelect.options).find(o => o.value === cat);
+        if (opt) {
+          catSelect.value = cat;
+          actualizarQfSubcat();
+        }
+      }
+      return;
+    }
+  }
+}
+
+function guardarGastoRapido() {
+  const desc = document.getElementById('qf-desc').value.trim();
+  const monto = parseFloat(document.getElementById('qf-monto').value);
+  const fecha = document.getElementById('qf-fecha').value;
+  const cat = document.getElementById('qf-cat').value;
+  const mes = document.getElementById('qf-mes').value;
+  const subcatEl = document.getElementById('qf-subcat');
+  const subcat = (SUBCATS[cat] && subcatEl && subcatEl.value) ? subcatEl.value : null;
+
+  if (!desc || !fecha || !mes) { toast(t('toast_campos')); return; }
+  if (isNaN(monto) || monto <= 0) {
+    toast(t('toast_monto_invalido') || 'El monto debe ser mayor a 0');
+    return;
+  }
+
+  DATA.gastos.push({
+    id: Date.now() + Math.floor(Math.random() * 1000),
+    desc, monto: Math.round(monto), fecha, cat, subcat, mes
+  });
+  save();
+
+  cerrarGastoRapido(true);
+  toast(t('toast_gasto_ok'));
+
+  const activePage = document.querySelector('.page.active');
+  if (activePage) {
+    const id = activePage.id;
+    if (id === 'pg-dashboard') {
+      renderKPIs();
+      renderCatBars();
+      renderChart();
+      renderAcumulado();
+    } else if (id === 'pg-historial') {
+      renderHistorial();
+    } else if (id === 'pg-categorias') {
+      if (typeof renderCatAnalisis === 'function') renderCatAnalisis();
+    } else if (id === 'pg-tendencias') {
+      if (typeof renderTendencias === 'function') renderTendencias();
+    }
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  const modal = document.getElementById('quick-gasto-modal');
+  if (modal && modal.style.display === 'flex') {
+    cerrarGastoRapido();
+  }
+});
+
+/* ── TOGGLE SWIPE ENTRE PESTAÑAS ────────────────────────────── */
+function toggleSwipeTabs(enabled) {
+  safeSet('finko_swipe_tabs', enabled ? '1' : '0');
+  toast(enabled ? (t('toast_swipe_on') || 'Swipe activado ✓')
+                : (t('toast_swipe_off') || 'Swipe desactivado'));
+}
+
+function syncSwipeToggleUI() {
+  const cb = document.getElementById('swipe-tabs-toggle');
+  if (cb) cb.checked = (localStorage.getItem('finko_swipe_tabs') === '1');
+}
+
+document.addEventListener('DOMContentLoaded', syncSwipeToggleUI);
+(function patchNavToForSwipe() {
+  if (typeof navTo !== 'function') return;
+  const orig = navTo;
+  window.navTo = async function(pg, btn, direction) {
+    const r = await orig.apply(this, arguments);
+    if (pg === 'ajustes') setTimeout(syncSwipeToggleUI, 60);
+    return r;
+  };
+})();
+
 (function() {
   const TABS = ['dashboard','cargar','historial','metas','tendencias','categorias','ajustes'];
   let touchStartX = 0, touchStartY = 0, swiping = false;
@@ -4850,9 +5137,12 @@ function fabAddGasto() {
   content.addEventListener('touchend', function(e) {
     if (!swiping) return;
     swiping = false;
+
+    if (localStorage.getItem('finko_swipe_tabs') !== '1') return;
+
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+    if (Math.abs(dx) < 100 || Math.abs(dx) < Math.abs(dy) * 2) return;
 
     const currentBtn = document.querySelector('.nav-btn.active');
     const currentPage = document.querySelector('.page.active');
