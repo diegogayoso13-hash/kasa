@@ -239,7 +239,9 @@ const LANG = {
 
     // Gasto con ahorros
     card_gasto_ahorros: 'Gasto con ahorros',
-    lbl_gasto_ahorros_desc: 'Registrá un gasto que sale de tu ahorro acumulado. Elegí de qué mes descontarlo.',
+    lbl_gasto_ahorros_desc: 'Para gastos grandes que no son del mes, como vacaciones, un electrodoméstico o una refacción. Estos no cuentan en tu tasa de ahorro mensual.',
+    lbl_hint_usar_ahorros: '💡 ¿Es un gasto grande con plata ahorrada?',
+    lbl_hint_usar_ahorros_link: 'Cargalo acá',
     lbl_descontar_mes: 'Descontar del mes',
     lbl_motivo: 'Motivo',
     btn_registrar_gasto_aho: 'Registrar gasto con ahorros',
@@ -636,7 +638,9 @@ const LANG = {
     lbl_gastado: 'Spent',
     lbl_sin_presupuesto: 'no budget set',
     card_gasto_ahorros: 'Expense from savings',
-    lbl_gasto_ahorros_desc: 'Record an expense paid from your accumulated savings.',
+    lbl_gasto_ahorros_desc: 'For big one-off expenses like holidays, appliances or home repairs. These don\'t count towards your monthly savings rate.',
+    lbl_hint_usar_ahorros: '💡 Is this a big expense from your savings?',
+    lbl_hint_usar_ahorros_link: 'Add it here',
     lbl_descontar_mes: 'Deduct from month',
     lbl_motivo: 'Reason',
     btn_registrar_gasto_aho: 'Record savings expense',
@@ -1000,7 +1004,9 @@ const LANG = {
     lbl_gastado: 'Gasto',
     lbl_sin_presupuesto: 'sem orçamento',
     card_gasto_ahorros: 'Gasto da poupança',
-    lbl_gasto_ahorros_desc: 'Registre um gasto pago da sua poupança acumulada.',
+    lbl_gasto_ahorros_desc: 'Para gastos grandes que não são do mês, como férias, um eletrodoméstico ou uma reforma. Esses não contam na sua taxa de poupança mensal.',
+    lbl_hint_usar_ahorros: '💡 É um gasto grande do seu dinheiro guardado?',
+    lbl_hint_usar_ahorros_link: 'Registre aqui',
     lbl_descontar_mes: 'Descontar do mês',
     lbl_motivo: 'Motivo',
     btn_registrar_gasto_aho: 'Registrar gasto da poupança',
@@ -1911,6 +1917,10 @@ tr:last-child td { border: none; }
         </div>
         <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="f-mes"></select></div>
         <button class="btn btn-primary" onclick="guardarGasto()"><span data-i18n="btn_guardar_gasto">Guardar gasto</span></button>
+        <div style="margin-top:10px;text-align:center;font-size:12px;color:var(--text2)">
+          <span data-i18n="lbl_hint_usar_ahorros">💡 ¿Es un gasto grande con plata ahorrada?</span>
+          <a href="#card-gasto-ahorros" onclick="event.preventDefault();document.getElementById('card-gasto-ahorros').scrollIntoView({behavior:'smooth'})" style="color:var(--amber);text-decoration:none;margin-left:4px" data-i18n="lbl_hint_usar_ahorros_link">Cargalo acá</a>
+        </div>
       </div>
 
       <div class="card">
@@ -1937,9 +1947,9 @@ tr:last-child td { border: none; }
         <div id="quick-summary" style="font-size:13px;color:var(--text2);text-align:center;padding:8px 0"><span data-i18n="lbl_quick_sel">Seleccioná un mes arriba</span></div>
       </div>
 
-      <div class="card">
+      <div class="card" id="card-gasto-ahorros">
         <div class="card-title" style="color:var(--amber)"><span data-i18n="card_gasto_ahorros">Gasto con ahorros</span></div>
-        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_gasto_ahorros_desc">Registrá un gasto que sale de tu ahorro acumulado. Elegí de qué mes descontarlo.</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_gasto_ahorros_desc">Para gastos grandes que no son del mes, como vacaciones, un electrodoméstico o una refacción. Estos no cuentan en tu tasa de ahorro mensual.</div>
         <div class="field"><label data-i18n="lbl_descripcion">Descripción</label><input type="text" id="ga-desc" placeholder="Ej: viaje, refacción..."></div>
         <div class="row2">
           <div class="field"><label data-i18n="lbl_monto">Monto ($)</label><input type="number" id="ga-monto" placeholder="0" inputmode="decimal"></div>
