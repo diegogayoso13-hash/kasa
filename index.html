@@ -4157,6 +4157,7 @@ async function getAuthToken() {
 }
 
 async function cloudSave(payload) {
+  if(isAnonId(USER_ID)) return;
   if(!navigator.onLine) { safeSet('fpro_v3_pending', payload); return; }
   showSync('syncing');
   const token = await getAuthToken();
@@ -4168,6 +4169,7 @@ async function cloudSave(payload) {
 }
 
 async function cloudLoad() {
+  if(isAnonId(USER_ID)) { _cloudLoaded = true; return; }
   showSync('syncing');
   const token = await getAuthToken();
   fetch(SB_URL + '/rest/v1/sync_data?id=eq.' + encodeURIComponent(USER_ID) + '&select=data', {
@@ -4783,7 +4785,7 @@ async function checkAuthSession() {
     }
     // No hay sesión. Si había un user_id tipo UUID guardado, la sesión expiró o fue revocada.
     const storedId = localStorage.getItem('finko_user_id');
-    const wasLoggedIn = storedId && !storedId.startsWith('anon_') && storedId.includes('-');
+    const wasLoggedIn = storedId && !isAnonId(storedId);
     if(wasLoggedIn) {
       // Limpiar credenciales stale y forzar login
       ['finko_user_id','finko_skip_auth'].forEach(k => localStorage.removeItem(k));
@@ -4818,17 +4820,16 @@ function initAuthStateListener() {
   });
 }
 /* ── MIGRACIÓN ANÓNIMO → CUENTA ──────────────────────────────────────────── */
-// FIXME(migration-1): Hoy se asume que IDs anónimos empiezan con 'anon_'. En la práctica
-// existen 3 funciones que generan IDs sin cuenta (skipAuth: 'anon_*', obSkip y obFinish: 'user*').
-// La función deleteOrphanRow filtra solo 'anon_*' → no borra filas huérfanas con prefijo 'user'.
-// Solución pendiente: crear isAnonId(id) que detecte ambos patrones (id sin guiones = anónimo).
 
-// FIXME(migration-2): Errores 401 en consola al sincronizar como anónimo. Causa: la RLS de
-// sync_data en Supabase (auth.uid()::text = id) rechaza requests sin sesión real. Anónimos
-// usan SB_KEY como Bearer token y la policy los rechaza. Esto puede causar race conditions
-// en uploadLocalToCloud post-login si el JWT recién creado no propagó a tiempo.
-// Solución pendiente: o desactivar cloudSave/cloudLoad para anónimos (Camino A), o crear
-// una RLS policy que acepte filas con id que matchee patrón anónimo (Camino B).
+// Devuelve true para IDs de usuarios sin cuenta: prefijo 'anon_' (skipAuth) o
+// prefijo 'user' sin guiones (obSkip / obFinish). Los UUIDs reales tienen guiones
+// y devuelven false.
+function isAnonId(id) {
+  if(!id) return false;
+  if(id.startsWith('anon_')) return true;
+  if(id.startsWith('user') && !id.includes('-')) return true;
+  return false;
+}
 
 var _migrationInProgress = false;
 
@@ -4904,8 +4905,7 @@ async function uploadLocalToCloud(snapshot) {
 }
 
 async function deleteOrphanRow(anonId) {
-  // FIXME(migration-1): solo borra IDs con prefijo 'anon_'. Los IDs 'user*' no se borran.
-  if(!anonId || anonId.indexOf('anon_') !== 0) return;
+  if(!isAnonId(anonId)) return;
   try {
     const token = await getAuthToken();
     await fetch(SB_URL + '/rest/v1/sync_data?id=eq.' + encodeURIComponent(anonId), {
@@ -5122,10 +5122,7 @@ async function registerEmail(email, password) {
       await handlePostRegisterMigration(prevAnonId, prevLocalSnapshot);
       return true;
     }
-    // FIXME(migration-1): solo se guarda la flag si prevAnonId empieza con 'anon_'.
-    // Si el usuario venía con ID 'user*' (de obSkip/obFinish), la migración con
-    // email-confirmation no se va a disparar al volver a hacer login.
-    if(prevAnonId && prevAnonId.indexOf('anon_') === 0) {
+    if(prevAnonId && isAnonId(prevAnonId)) {
       safeSet('finko_pending_register_anon', prevAnonId);
     }
     toast(t('auth_check_email')); 
@@ -5209,8 +5206,7 @@ function skipAuth() {
     USER_ID = anonId;
     safeSet('finko_user_id', anonId);
   }
-  // Sin cuenta = no hay cloudLoad, pero save() igual debe persistir local
-  _cloudLoaded = true;
+  // Sin cuenta = no hay cloudLoad. save() persiste a localStorage (no depende de _cloudLoaded).
   // Iniciar trial de 30 días
   initTrialStart();
   // Show onboarding if first time
