@@ -1,8 +1,8 @@
-/* Martifin Service Worker v15
+/* Martifin Service Worker v17
    - Network-first para el HTML (evita stale cache del index)
-   - Cache-first para el resto (fuentes, chart.js, supabase-js, iconos)
+   - Cache-first para el resto (fuentes, chart.js, supabase-js, sheetjs, iconos)
 */
-const CACHE = 'martifin-v15';
+const CACHE = 'martifin-v17';
 const ASSETS = [
   './',
   './index.html',

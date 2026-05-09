@@ -15,6 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <script>
 /* ── GLOBAL AUTH VARS (must be first to avoid TDZ) ──────────────────────── */
 const MARTIFIN_VERSION = 'v8.1';
@@ -314,16 +315,20 @@ const LANG = {
     lbl_codigo_desc: 'Este código identifica tus datos en la nube. Usalo en todos tus dispositivos.',
     btn_cambiar: 'Cambiar',
     card_datos: 'Datos de la app',
+    card_backup: 'Backup y exportación',
+    lbl_backup_desc: 'Hacé una copia de tus datos para guardarla en tu computadora o nube personal.',
+    btn_excel: 'Descargar para Excel',
+    btn_excel_sub: 'Para abrir en Excel o Google Sheets',
+    btn_json: 'Descargar backup completo',
+    btn_json_sub: 'Para guardar y restaurar después',
+    toast_export_ok: 'Backup descargado ✓',
+    toast_export_fail: 'No se pudo descargar. Intentalo de nuevo',
     lbl_datos_desc: 'Tus gastos y sueldos se guardan en este dispositivo. Si querés empezar de cero podés borrar todos los datos cargados.',
     btn_borrar_datos: 'Borrar gastos y sueldos cargados',
     btn_ver_bienvenida: 'Ver pantalla de bienvenida',
     card_resumen_aj: 'Resumen',
     card_idioma: 'Idioma',
     lbl_idioma_desc: 'Cambiá el idioma de la app.',
-    card_swipe_tabs: 'Cambiar de pestaña deslizando',
-    lbl_swipe_tabs_desc: 'Permití pasar de una pestaña a otra deslizando el dedo de izquierda a derecha.',
-    toast_swipe_on: 'Swipe activado ✓',
-    toast_swipe_off: 'Swipe desactivado',
 
     // Cafecito
     cafecito_title: 'Apoyar el proyecto',
@@ -676,16 +681,20 @@ const LANG = {
     lbl_codigo_desc: 'This code identifies your data in the cloud. Use it on all your devices.',
     btn_cambiar: 'Change',
     card_datos: 'App data',
+    card_backup: 'Backup & export',
+    lbl_backup_desc: 'Make a copy of your data to keep it on your computer or personal cloud.',
+    btn_excel: 'Download for Excel',
+    btn_excel_sub: 'To open in Excel or Google Sheets',
+    btn_json: 'Download full backup',
+    btn_json_sub: 'To save and restore later',
+    toast_export_ok: 'Backup downloaded ✓',
+    toast_export_fail: 'Could not download. Try again',
     lbl_datos_desc: 'Your expenses and income are saved on this device. You can reset all loaded data here.',
     btn_borrar_datos: 'Delete expenses and income',
     btn_ver_bienvenida: 'View welcome screen',
     card_resumen_aj: 'Summary',
     card_idioma: 'Language',
     lbl_idioma_desc: 'Change the app language.',
-    card_swipe_tabs: 'Swipe between tabs',
-    lbl_swipe_tabs_desc: 'Allow switching tabs by swiping your finger left or right.',
-    toast_swipe_on: 'Swipe enabled ✓',
-    toast_swipe_off: 'Swipe disabled',
 
     // Cafecito
     cafecito_title: 'Support the project',
@@ -1019,16 +1028,20 @@ const LANG = {
     lbl_codigo_desc: 'Este código identifica seus dados na nuvem. Use-o em todos os seus dispositivos.',
     btn_cambiar: 'Alterar',
     card_datos: 'Dados do app',
+    card_backup: 'Backup e exportação',
+    lbl_backup_desc: 'Faça uma cópia dos seus dados para salvar no seu computador ou nuvem pessoal.',
+    btn_excel: 'Baixar para Excel',
+    btn_excel_sub: 'Para abrir no Excel ou Google Sheets',
+    btn_json: 'Baixar backup completo',
+    btn_json_sub: 'Para salvar e restaurar depois',
+    toast_export_ok: 'Backup baixado ✓',
+    toast_export_fail: 'Não foi possível baixar. Tente novamente',
     lbl_datos_desc: 'Seus gastos e renda são salvos neste dispositivo. Você pode redefinir todos os dados aqui.',
     btn_borrar_datos: 'Excluir gastos e renda',
     btn_ver_bienvenida: 'Ver tela de boas-vindas',
     card_resumen_aj: 'Resumo',
     card_idioma: 'Idioma',
     lbl_idioma_desc: 'Altere o idioma do app.',
-    card_swipe_tabs: 'Trocar de aba deslizando',
-    lbl_swipe_tabs_desc: 'Permita trocar de aba deslizando o dedo da esquerda para a direita.',
-    toast_swipe_on: 'Deslize ativado ✓',
-    toast_swipe_off: 'Deslize desativado',
 
     // Cafecito
     cafecito_title: 'Apoiar o projeto',
@@ -1422,49 +1435,6 @@ tr:last-child td { border: none; }
   --red: #d63031; --red-dim: rgba(214,48,49,0.1);
   --amber: #d4850a; --amber-dim: rgba(212,133,10,0.1);
   --blue: #2d6eb5; --blue-dim: rgba(45,110,181,0.1);
-}
-
-/* ── SWITCH TIPO iOS ─────────────────────────────────────────── */
-.ios-switch {
-  position: relative;
-  display: inline-block;
-  width: 46px;
-  height: 28px;
-  flex-shrink: 0;
-  cursor: pointer;
-}
-.ios-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  position: absolute;
-}
-.ios-switch .slider {
-  position: absolute;
-  inset: 0;
-  background: var(--bg4);
-  border: 0.5px solid var(--border2);
-  border-radius: 999px;
-  transition: background .2s, border-color .2s;
-}
-.ios-switch .slider::before {
-  content: '';
-  position: absolute;
-  height: 22px;
-  width: 22px;
-  left: 2px;
-  top: 2px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform .2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-.ios-switch input:checked + .slider {
-  background: var(--teal);
-  border-color: var(--teal);
-}
-.ios-switch input:checked + .slider::before {
-  transform: translateX(18px);
 }
 
 </style>
@@ -2113,19 +2083,6 @@ tr:last-child td { border: none; }
       </div>
 
       <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px"><span data-i18n="card_swipe_tabs">Cambiar de pestaña deslizando</span></div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.5"><span data-i18n="lbl_swipe_tabs_desc">Permití pasar de una pestaña a otra deslizando el dedo de izquierda a derecha.</span></div>
-          </div>
-          <label class="ios-switch" aria-label="Activar swipe entre pestañas">
-            <input type="checkbox" id="swipe-tabs-toggle" onchange="toggleSwipeTabs(this.checked)">
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <div class="card">
         <div class="card-title" style="color:#1DBA87"><span data-i18n="card_pareja">Modo pareja</span></div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="lbl_pareja_desc">Activá el modo hogar para ver los gastos divididos entre vos y tu pareja.</div>
         <div id="pareja-config-off">
@@ -2204,6 +2161,21 @@ tr:last-child td { border: none; }
            style="display:block;padding:14px;background:#1DBA87;color:#fff;border-radius:var(--r-sm);font-size:15px;font-weight:600;text-decoration:none;text-align:center;box-shadow:0 2px 8px rgba(29,186,135,0.25)">
           ☕ <span data-i18n="cafecito_btn">Invitame un café</span>
         </a>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span data-i18n="card_backup">Backup y exportación</span></div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6" data-i18n="lbl_backup_desc">
+          Hacé una copia de tus datos para guardarla en tu computadora o nube personal.
+        </div>
+        <button class="btn" style="width:100%;background:var(--bg3);color:var(--text);border:0.5px solid var(--border2);font-size:14px;padding:12px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin-bottom:10px" onclick="descargarExcel()">
+          <span style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">📊</span><span data-i18n="btn_excel">Descargar para Excel</span></span>
+          <span style="font-size:11px;color:var(--text3);font-weight:400;padding-left:24px" data-i18n="btn_excel_sub">Para abrir en Excel o Google Sheets</span>
+        </button>
+        <button class="btn" style="width:100%;background:var(--bg3);color:var(--text);border:0.5px solid var(--border2);font-size:14px;padding:12px;display:flex;flex-direction:column;align-items:flex-start;gap:2px" onclick="descargarBackupJSON()">
+          <span style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">💾</span><span data-i18n="btn_json">Descargar backup completo</span></span>
+          <span style="font-size:11px;color:var(--text3);font-weight:400;padding-left:24px" data-i18n="btn_json_sub">Para guardar y restaurar después</span>
+        </button>
       </div>
 
       <div class="card">
@@ -4430,6 +4402,205 @@ async function checkTrialBanner() {
 }
 
 /* ── EXPORTAR PDF ────────────────────────────────────────────────────────── */
+/* ── BACKUP Y EXPORTACIÓN ─────────────────────────────────────────────────── */
+function _todayStr() {
+  const d = new Date();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return d.getFullYear() + '-' + mm + '-' + dd;
+}
+
+function _mesToISO(mes) {
+  // "Octubre 2026" → "2026-10". Devuelve '' si no se puede parsear.
+  if(!mes || typeof mes !== 'string') return '';
+  const map = {
+    enero:'01', febrero:'02', marzo:'03', abril:'04', mayo:'05', junio:'06',
+    julio:'07', agosto:'08', septiembre:'09', octubre:'10', noviembre:'11', diciembre:'12'
+  };
+  const parts = mes.trim().toLowerCase().split(/\s+/);
+  if(parts.length < 2) return '';
+  const m = map[parts[0]];
+  const y = parts[1];
+  if(!m || !/^\d{4}$/.test(y)) return '';
+  return y + '-' + m;
+}
+
+function _triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function _buildExcelSheets() {
+  // Devuelve un objeto { sheetName: arrayOfRows } con headers en español/inglés/portugués según idioma
+  const lang = currentLang || 'es';
+  const H = (lang === 'en')
+    ? { Fecha:'Date', Mes:'Month', MesISO:'MonthISO', Categoria:'Category', Subcategoria:'Subcategory',
+        Descripcion:'Description', Monto:'Amount', Nombre:'Name', Objetivo:'Goal',
+        Tipo:'Type', TipoMov:'Movement type', Motivo:'Reason',
+        Aporte:'Contribution', Retiro:'Withdrawal' }
+    : (lang === 'pt')
+    ? { Fecha:'Data', Mes:'Mês', MesISO:'MêsISO', Categoria:'Categoria', Subcategoria:'Subcategoria',
+        Descripcion:'Descrição', Monto:'Valor', Nombre:'Nome', Objetivo:'Meta',
+        Tipo:'Tipo', TipoMov:'Tipo de movimento', Motivo:'Motivo',
+        Aporte:'Aporte', Retiro:'Retirada' }
+    : { Fecha:'Fecha', Mes:'Mes', MesISO:'MesISO', Categoria:'Categoría', Subcategoria:'Subcategoría',
+        Descripcion:'Descripción', Monto:'Monto', Nombre:'Nombre', Objetivo:'Objetivo',
+        Tipo:'Tipo', TipoMov:'Tipo de movimiento', Motivo:'Motivo',
+        Aporte:'Aporte', Retiro:'Retiro' };
+
+  // Hoja Gastos
+  const gastosRows = (DATA.gastos || []).map(g => ({
+    [H.Fecha]: g.fecha || '',
+    [H.Mes]: g.mes || '',
+    [H.MesISO]: _mesToISO(g.mes),
+    [H.Categoria]: g.cat || '',
+    [H.Subcategoria]: g.subcat || '',
+    [H.Descripcion]: g.desc || '',
+    [H.Monto]: g.monto || 0
+  }));
+
+  // Hoja Sueldos (DATA.sueldos es objeto {mes: monto})
+  const sueldosRows = Object.entries(DATA.sueldos || {}).map(([mes, monto]) => ({
+    [H.Mes]: mes,
+    [H.MesISO]: _mesToISO(mes),
+    [H.Monto]: monto || 0
+  }));
+
+  // Hoja Metas
+  const metasRows = (DATA.metas || []).map(m => ({
+    [H.Nombre]: m.nombre || '',
+    [H.Objetivo]: m.objetivo || 0
+  }));
+
+  // Hoja Presupuestos (DATA.presupuestos es {mes: {cat: monto, ...}})
+  const presupuestosRows = [];
+  Object.entries(DATA.presupuestos || {}).forEach(([mes, cats]) => {
+    if(cats && typeof cats === 'object') {
+      Object.entries(cats).forEach(([cat, monto]) => {
+        presupuestosRows.push({
+          [H.Mes]: mes,
+          [H.MesISO]: _mesToISO(mes),
+          [H.Categoria]: cat,
+          [H.Monto]: monto || 0
+        });
+      });
+    }
+  });
+  // También presupuesto general
+  Object.entries(DATA.presupuestoGeneral || {}).forEach(([mes, monto]) => {
+    presupuestosRows.push({
+      [H.Mes]: mes,
+      [H.MesISO]: _mesToISO(mes),
+      [H.Categoria]: '(General)',
+      [H.Monto]: monto || 0
+    });
+  });
+
+  // Hoja Inversiones + Retiros mergeados
+  const inversionesRows = [];
+  (DATA.inversiones || []).forEach(i => {
+    inversionesRows.push({
+      [H.Fecha]: i.fecha || '',
+      [H.Mes]: i.mes || '',
+      [H.MesISO]: _mesToISO(i.mes),
+      [H.TipoMov]: H.Aporte,
+      [H.Tipo]: i.tipo || '',
+      [H.Descripcion]: '',
+      [H.Motivo]: '',
+      [H.Monto]: i.monto || 0
+    });
+  });
+  (DATA.retirosInversion || []).forEach(r => {
+    inversionesRows.push({
+      [H.Fecha]: r.fecha || '',
+      [H.Mes]: r.mes || '',
+      [H.MesISO]: _mesToISO(r.mes),
+      [H.TipoMov]: H.Retiro,
+      [H.Tipo]: '',
+      [H.Descripcion]: r.desc || '',
+      [H.Motivo]: r.motivo || '',
+      [H.Monto]: r.monto || 0
+    });
+  });
+
+  // Hoja Gastos con ahorros
+  const gastosAhorrosRows = (DATA.gastosAhorros || []).map(g => ({
+    [H.Fecha]: g.fecha || '',
+    [H.Mes]: g.mes || '',
+    [H.MesISO]: _mesToISO(g.mes),
+    [H.Descripcion]: g.desc || '',
+    [H.Motivo]: g.motivo || '',
+    [H.Monto]: g.monto || 0
+  }));
+
+  // Nombres de hojas según idioma
+  const sheetNames = (lang === 'en')
+    ? { gastos:'Expenses', sueldos:'Income', metas:'Goals', presup:'Budgets', inv:'Investments', ga:'Savings expenses' }
+    : (lang === 'pt')
+    ? { gastos:'Gastos', sueldos:'Renda', metas:'Metas', presup:'Orçamentos', inv:'Investimentos', ga:'Gastos com poupança' }
+    : { gastos:'Gastos', sueldos:'Sueldos', metas:'Metas', presup:'Presupuestos', inv:'Inversiones', ga:'Gastos con ahorros' };
+
+  return {
+    [sheetNames.gastos]: gastosRows.length ? gastosRows : [{ [H.Fecha]:'', [H.Mes]:'', [H.MesISO]:'', [H.Categoria]:'', [H.Subcategoria]:'', [H.Descripcion]:'', [H.Monto]:'' }],
+    [sheetNames.sueldos]: sueldosRows.length ? sueldosRows : [{ [H.Mes]:'', [H.MesISO]:'', [H.Monto]:'' }],
+    [sheetNames.metas]: metasRows.length ? metasRows : [{ [H.Nombre]:'', [H.Objetivo]:'' }],
+    [sheetNames.presup]: presupuestosRows.length ? presupuestosRows : [{ [H.Mes]:'', [H.MesISO]:'', [H.Categoria]:'', [H.Monto]:'' }],
+    [sheetNames.inv]: inversionesRows.length ? inversionesRows : [{ [H.Fecha]:'', [H.Mes]:'', [H.MesISO]:'', [H.TipoMov]:'', [H.Tipo]:'', [H.Descripcion]:'', [H.Motivo]:'', [H.Monto]:'' }],
+    [sheetNames.ga]: gastosAhorrosRows.length ? gastosAhorrosRows : [{ [H.Fecha]:'', [H.Mes]:'', [H.MesISO]:'', [H.Descripcion]:'', [H.Motivo]:'', [H.Monto]:'' }]
+  };
+}
+
+function descargarExcel() {
+  try {
+    if(typeof XLSX === 'undefined') {
+      toast(t('toast_export_fail') || 'No se pudo descargar. Intentalo de nuevo');
+      return;
+    }
+    const sheets = _buildExcelSheets();
+    const wb = XLSX.utils.book_new();
+    Object.entries(sheets).forEach(([name, rows]) => {
+      const ws = XLSX.utils.json_to_sheet(rows);
+      // Ocultar columna MesISO si existe (índice variable según el idioma de los headers)
+      if(rows.length > 0) {
+        const headers = Object.keys(rows[0]);
+        const isoIdx = headers.findIndex(h => h === 'MesISO' || h === 'MonthISO' || h === 'MêsISO');
+        if(isoIdx >= 0) {
+          ws['!cols'] = headers.map((_, i) => i === isoIdx ? { hidden: true } : { wch: 15 });
+        }
+      }
+      XLSX.utils.book_append_sheet(wb, ws, name);
+    });
+    XLSX.writeFile(wb, 'martifin-backup-' + _todayStr() + '.xlsx');
+    toast(t('toast_export_ok') || 'Backup descargado ✓');
+  } catch(e) {
+    console.error('descargarExcel error:', e);
+    toast(t('toast_export_fail') || 'No se pudo descargar. Intentalo de nuevo');
+  }
+}
+
+function descargarBackupJSON() {
+  try {
+    const payload = {
+      version: 1,
+      app: 'Martifin',
+      exportedAt: new Date().toISOString(),
+      data: { ...DATA, months: MONTHS }
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    _triggerDownload(blob, 'martifin-backup-' + _todayStr() + '.json');
+    toast(t('toast_export_ok') || 'Backup descargado ✓');
+  } catch(e) {
+    console.error('descargarBackupJSON error:', e);
+    toast(t('toast_export_fail') || 'No se pudo descargar. Intentalo de nuevo');
+  }
+}
+
 async function exportarPDF() {
   if (!(await requirePro('pdf_export'))) return;
   const d = getMesData(selMes);
@@ -4778,50 +4949,6 @@ window.addEventListener('offline', () => {
   </div>
 </div>
 
-<!-- ── MODAL DE GASTO RÁPIDO (FAB) ─────────────────────────────────── -->
-<div id="quick-gasto-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:flex-end;justify-content:center" onclick="if(event.target===this)cerrarGastoRapido()">
-  <div style="background:var(--bg2);border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div style="font-size:16px;font-weight:600;color:var(--text)">Nuevo gasto</div>
-      <button onclick="cerrarGastoRapido()" style="background:none;border:none;color:var(--text2);font-size:24px;cursor:pointer;line-height:1;padding:0 4px" aria-label="Cerrar">×</button>
-    </div>
-
-    <div class="field">
-      <label data-i18n="lbl_descripcion">Descripción</label>
-      <input type="text" id="qf-desc" placeholder="Ej: supermercado, nafta..." oninput="autoDetectCatRapido(this.value)">
-    </div>
-
-    <div class="field">
-      <label data-i18n="lbl_monto">Monto ($)</label>
-      <input type="number" id="qf-monto" placeholder="0" inputmode="decimal">
-    </div>
-
-    <div class="field">
-      <label data-i18n="lbl_categoria">Categoría</label>
-      <select id="qf-cat" onchange="this.dataset.userSet='1';actualizarQfSubcat()"></select>
-    </div>
-
-    <button onclick="toggleQfMasOpciones()" style="width:100%;background:transparent;border:0.5px dashed var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:13px;padding:10px;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px">
-      <span>Más opciones</span><span id="qf-mas-flecha">▾</span>
-    </button>
-
-    <div id="qf-mas-opciones" style="display:none">
-      <div class="field" id="qf-subcat-field" style="display:none">
-        <label data-i18n="lbl_subcategoria">Subcategoría</label>
-        <select id="qf-subcat"></select>
-      </div>
-      <div class="row2">
-        <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="qf-fecha"></div>
-        <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="qf-mes"></select></div>
-      </div>
-    </div>
-
-    <button class="btn btn-primary" onclick="guardarGastoRapido()" style="width:100%;margin-top:4px">
-      <span data-i18n="btn_guardar_gasto">Guardar gasto</span>
-    </button>
-  </div>
-</div>
-
 <!-- ── PAYWALL MODAL ─────────────────────────────────────────────────── -->
 <div id="paywall-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--r);padding:28px 24px;width:100%;max-width:360px;text-align:center">
@@ -4940,188 +5067,13 @@ function limpiarFormulariosCargar() {
 
 function fabAddGasto() {
   if (navigator.vibrate) navigator.vibrate(10);
-  abrirGastoRapido();
-}
-
-/* ── MODAL DE GASTO RÁPIDO (FAB) ─────────────────────────────────────────── */
-function abrirGastoRapido() {
-  const modal = document.getElementById('quick-gasto-modal');
-  if (!modal) return;
-
-  const now = new Date();
-  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-                      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  const mesActual = monthNames[now.getMonth()] + ' ' + now.getFullYear();
-  const mesParaUsar = MONTHS.includes(mesActual) ? mesActual : MONTHS[MONTHS.length - 1];
-  const todayStr = now.toISOString().split('T')[0];
-
-  const qfCat = document.getElementById('qf-cat');
-  qfCat.innerHTML = CATS_LIST.map(c => `<option value="${c}">${getCatLabel(c)}</option>`).join('');
-  qfCat.value = CATS_LIST[0];
-  delete qfCat.dataset.userSet;
-
-  const qfMes = document.getElementById('qf-mes');
-  const rev = [...MONTHS].reverse();
-  qfMes.innerHTML = rev.map(m => `<option value="${m}">${getMonthDisplay(m)}</option>`).join('');
-  qfMes.value = mesParaUsar;
-
-  document.getElementById('qf-desc').value = '';
-  document.getElementById('qf-monto').value = '';
-  document.getElementById('qf-fecha').value = todayStr;
-
-  actualizarQfSubcat();
-
-  const masOpc = document.getElementById('qf-mas-opciones');
-  const flecha = document.getElementById('qf-mas-flecha');
-  if (masOpc) masOpc.style.display = 'none';
-  if (flecha) flecha.textContent = '▾';
-
-  modal.style.display = 'flex';
+  const cargarBtn = document.querySelectorAll('.nav-btn')[1];
+  if (cargarBtn) navTo('cargar', cargarBtn);
   setTimeout(() => {
-    const descInput = document.getElementById('qf-desc');
+    const descInput = document.getElementById('f-desc');
     if (descInput) descInput.focus();
-  }, 100);
+  }, 300);
 }
-
-function cerrarGastoRapido(forzar) {
-  const modal = document.getElementById('quick-gasto-modal');
-  if (!modal) return;
-
-  if (forzar === true) {
-    modal.style.display = 'none';
-    return;
-  }
-
-  const desc = document.getElementById('qf-desc').value.trim();
-  const monto = document.getElementById('qf-monto').value.trim();
-
-  if (desc || monto) {
-    showConfirm('¿Descartar el gasto?', function() {
-      modal.style.display = 'none';
-    });
-    return;
-  }
-
-  modal.style.display = 'none';
-}
-
-function toggleQfMasOpciones() {
-  const masOpc = document.getElementById('qf-mas-opciones');
-  const flecha = document.getElementById('qf-mas-flecha');
-  if (!masOpc) return;
-  const oculto = masOpc.style.display === 'none';
-  masOpc.style.display = oculto ? 'block' : 'none';
-  if (flecha) flecha.textContent = oculto ? '▴' : '▾';
-}
-
-function actualizarQfSubcat() {
-  const cat = document.getElementById('qf-cat').value;
-  const field = document.getElementById('qf-subcat-field');
-  const sel = document.getElementById('qf-subcat');
-  if (!field || !sel) return;
-  const lista = getSubcatsList(cat);
-  if (lista.length) {
-    field.style.display = 'block';
-    sel.innerHTML = lista.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
-    sel.value = lista[0];
-  } else {
-    field.style.display = 'none';
-  }
-}
-
-function autoDetectCatRapido(texto) {
-  const desc = (texto || '').toLowerCase().trim();
-  if (desc.length < 3) return;
-  const catSelect = document.getElementById('qf-cat');
-  if (!catSelect || catSelect.dataset.userSet === '1') return;
-
-  for (const [cat, keywords] of Object.entries(CAT_KEYWORDS)) {
-    if (keywords.some(kw => desc.includes(kw))) {
-      if (catSelect.value !== cat) {
-        const opt = Array.from(catSelect.options).find(o => o.value === cat);
-        if (opt) {
-          catSelect.value = cat;
-          actualizarQfSubcat();
-        }
-      }
-      return;
-    }
-  }
-}
-
-function guardarGastoRapido() {
-  const desc = document.getElementById('qf-desc').value.trim();
-  const monto = parseFloat(document.getElementById('qf-monto').value);
-  const fecha = document.getElementById('qf-fecha').value;
-  const cat = document.getElementById('qf-cat').value;
-  const mes = document.getElementById('qf-mes').value;
-  const subcatEl = document.getElementById('qf-subcat');
-  const subcat = (SUBCATS[cat] && subcatEl && subcatEl.value) ? subcatEl.value : null;
-
-  if (!desc || !fecha || !mes) { toast(t('toast_campos')); return; }
-  if (isNaN(monto) || monto <= 0) {
-    toast(t('toast_monto_invalido') || 'El monto debe ser mayor a 0');
-    return;
-  }
-
-  DATA.gastos.push({
-    id: Date.now() + Math.floor(Math.random() * 1000),
-    desc, monto: Math.round(monto), fecha, cat, subcat, mes
-  });
-  save();
-
-  cerrarGastoRapido(true);
-  toast(t('toast_gasto_ok'));
-
-  const activePage = document.querySelector('.page.active');
-  if (activePage) {
-    const id = activePage.id;
-    if (id === 'pg-dashboard') {
-      renderKPIs();
-      renderCatBars();
-      renderChart();
-      renderAcumulado();
-    } else if (id === 'pg-historial') {
-      renderHistorial();
-    } else if (id === 'pg-categorias') {
-      if (typeof renderCatAnalisis === 'function') renderCatAnalisis();
-    } else if (id === 'pg-tendencias') {
-      if (typeof renderTendencias === 'function') renderTendencias();
-    }
-  }
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key !== 'Escape') return;
-  const modal = document.getElementById('quick-gasto-modal');
-  if (modal && modal.style.display === 'flex') {
-    cerrarGastoRapido();
-  }
-});
-
-/* ── TOGGLE SWIPE ENTRE PESTAÑAS ────────────────────────────── */
-function toggleSwipeTabs(enabled) {
-  safeSet('finko_swipe_tabs', enabled ? '1' : '0');
-  toast(enabled ? (t('toast_swipe_on') || 'Swipe activado ✓')
-                : (t('toast_swipe_off') || 'Swipe desactivado'));
-}
-
-function syncSwipeToggleUI() {
-  const cb = document.getElementById('swipe-tabs-toggle');
-  if (cb) cb.checked = (localStorage.getItem('finko_swipe_tabs') === '1');
-}
-
-document.addEventListener('DOMContentLoaded', syncSwipeToggleUI);
-(function patchNavToForSwipe() {
-  if (typeof navTo !== 'function') return;
-  const orig = navTo;
-  window.navTo = async function(pg, btn, direction) {
-    const r = await orig.apply(this, arguments);
-    if (pg === 'ajustes') setTimeout(syncSwipeToggleUI, 60);
-    return r;
-  };
-})();
-
 (function() {
   const TABS = ['dashboard','cargar','historial','metas','tendencias','categorias','ajustes'];
   let touchStartX = 0, touchStartY = 0, swiping = false;
@@ -5137,12 +5089,9 @@ document.addEventListener('DOMContentLoaded', syncSwipeToggleUI);
   content.addEventListener('touchend', function(e) {
     if (!swiping) return;
     swiping = false;
-
-    if (localStorage.getItem('finko_swipe_tabs') !== '1') return;
-
     const dx = e.changedTouches[0].clientX - touchStartX;
     const dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) < 100 || Math.abs(dx) < Math.abs(dy) * 2) return;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
 
     const currentBtn = document.querySelector('.nav-btn.active');
     const currentPage = document.querySelector('.page.active');
