@@ -526,6 +526,9 @@ const LANG = {
     // Auth
     auth_login: 'Iniciar sesión', auth_register: 'Crear cuenta', auth_password: 'Contraseña',
     auth_logout: 'Cerrar sesión', auth_skip: 'Continuar sin cuenta',
+    auth_start_free: 'Empezar gratis', auth_hint_local: 'Tus datos quedan en este celular',
+    auth_register_email: 'Crear cuenta con email', auth_hint_sync: 'Sincronizá entre celular y compu',
+    auth_already_have: '¿Ya tenés cuenta? Iniciá sesión',
     // Paywall Pro
     paywall_title: 'Función Pro 🔒',
     paywall_desc: 'Esta función está disponible en Martifin Pro.',
@@ -902,6 +905,9 @@ const LANG = {
     tut_t5: 'Set your goals', tut_d5: 'Set a savings goal and track your progress.',
     auth_login: 'Sign in', auth_register: 'Create account', auth_password: 'Password',
     auth_logout: 'Sign out', auth_skip: 'Continue without account',
+    auth_start_free: 'Start for free', auth_hint_local: 'Your data stays on this phone',
+    auth_register_email: 'Create account with email', auth_hint_sync: 'Sync between phone and computer',
+    auth_already_have: 'Already have an account? Sign in',
     paywall_title: 'Pro Feature 🔒',
     paywall_desc: 'This feature is available in Martifin Pro.',
     paywall_price: '$119 / month or $789 / year',
@@ -1268,6 +1274,9 @@ const LANG = {
     tut_t5: 'Defina suas metas', tut_d5: 'Defina um objetivo de poupança e acompanhe seu progresso.',
     auth_login: 'Entrar', auth_register: 'Criar conta', auth_password: 'Senha',
     auth_logout: 'Sair', auth_skip: 'Continuar sem conta',
+    auth_start_free: 'Começar grátis', auth_hint_local: 'Seus dados ficam neste celular',
+    auth_register_email: 'Criar conta com email', auth_hint_sync: 'Sincronize entre celular e computador',
+    auth_already_have: 'Já tem conta? Entre',
     paywall_title: 'Recurso Pro 🔒',
     paywall_desc: 'Este recurso está disponível no Martifin Pro.',
     paywall_price: '$119 / mês ou $789 / ano',
@@ -1549,19 +1558,45 @@ tr:last-child td { border: none; }
       <div style="font-size:34px;font-weight:700;color:#fff">Marti<span style="color:#1DBA87">fin</span></div>
       <div style="font-size:14px;color:#8a93a8;margin-top:4px" data-i18n="app_tagline">Tu copiloto financiero</div>
     </div>
-    <div class="field">
-      <label>Email</label>
-      <input type="email" id="auth-email" placeholder="tu@email.com" autocomplete="email"
-        style="width:100%;background:#111;border:0.5px solid #222;border-radius:10px;color:#fff;font-size:15px;padding:12px;outline:none">
+    <!-- Botón primario -->
+    <button onclick="skipAuth()" data-i18n="auth_start_free"
+      style="width:100%;padding:16px;background:#1DBA87;border:none;border-radius:14px;color:#000;font-size:17px;font-weight:700;cursor:pointer;margin-bottom:8px">
+      Empezar gratis
+    </button>
+    <div data-i18n="auth_hint_local" style="text-align:center;font-size:12px;color:#8a93a8;margin-bottom:24px">Tus datos quedan en este celular</div>
+
+    <!-- Botón secundario: abre acordeón de registro -->
+    <button onclick="toggleAuthPanel('register')" data-i18n="auth_register_email"
+      style="width:100%;padding:13px;background:transparent;border:1.5px solid #1DBA87;border-radius:14px;color:#1DBA87;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px">
+      Crear cuenta con email
+    </button>
+    <div data-i18n="auth_hint_sync" style="text-align:center;font-size:12px;color:#8a93a8;margin-bottom:16px">Sincronizá entre celular y compu</div>
+
+    <!-- Acordeón email/password -->
+    <div id="auth-panel" style="display:none;margin-bottom:16px">
+      <div class="field" style="margin-bottom:10px">
+        <label>Email</label>
+        <input type="email" id="auth-email" placeholder="tu@email.com" autocomplete="email"
+          style="width:100%;background:#111;border:0.5px solid #333;border-radius:10px;color:#fff;font-size:15px;padding:12px;outline:none;box-sizing:border-box">
+      </div>
+      <div class="field" style="margin-bottom:12px">
+        <label data-i18n="auth_password">Contraseña</label>
+        <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password"
+          style="width:100%;background:#111;border:0.5px solid #333;border-radius:10px;color:#fff;font-size:15px;padding:12px;outline:none;box-sizing:border-box">
+      </div>
+      <button id="auth-action-btn"
+        style="width:100%;padding:13px;background:#1DBA87;border:none;border-radius:12px;color:#000;font-size:15px;font-weight:600;cursor:pointer">
+        Crear cuenta
+      </button>
     </div>
-    <div class="field">
-      <label data-i18n="auth_password">Contraseña</label>
-      <input type="password" id="auth-pass" placeholder="••••••••" autocomplete="current-password"
-        style="width:100%;background:#111;border:0.5px solid #222;border-radius:10px;color:#fff;font-size:15px;padding:12px;outline:none">
+
+    <!-- Link de login -->
+    <div style="text-align:center">
+      <button onclick="toggleAuthPanel('login')" data-i18n="auth_already_have"
+        style="background:none;border:none;color:#8a93a8;font-size:13px;cursor:pointer;text-decoration:underline;font-family:inherit">
+        ¿Ya tenés cuenta? Iniciá sesión
+      </button>
     </div>
-    <button onclick="doLogin()" id="auth-login-btn" style="width:100%;padding:14px;background:#1DBA87;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px" data-i18n="auth_login">Iniciar sesión</button>
-    <button onclick="doRegister()" style="width:100%;padding:12px;background:transparent;border:0.5px solid #222;border-radius:12px;color:#888;font-size:14px;cursor:pointer;margin-bottom:10px" data-i18n="auth_register">Crear cuenta</button>
-    <button onclick="skipAuth()" style="width:100%;padding:10px;background:transparent;border:none;color:#444;font-size:13px;cursor:pointer" data-i18n="auth_skip">Continuar sin cuenta</button>
   </div>
 </div>
 
@@ -5212,6 +5247,35 @@ function skipAuth() {
   // Show onboarding if first time
   if(!localStorage.getItem('finko_onboarded')) obInit();
 }
+function toggleAuthPanel(mode) {
+  const panel = document.getElementById('auth-panel');
+  const btn   = document.getElementById('auth-action-btn');
+  const pass  = document.getElementById('auth-pass');
+  const isOpen = panel.style.display !== 'none';
+  const sameMode = panel.dataset.mode === mode;
+
+  if (isOpen && sameMode) {
+    panel.style.display = 'none';
+    panel.dataset.mode = '';
+    return;
+  }
+
+  panel.style.display = 'block';
+  panel.dataset.mode  = mode;
+
+  if (mode === 'register') {
+    btn.textContent = t('auth_register') || 'Crear cuenta';
+    btn.onclick     = () => doRegister();
+    pass.autocomplete = 'new-password';
+  } else {
+    btn.textContent = t('auth_login') || 'Iniciar sesión';
+    btn.onclick     = () => doLogin();
+    pass.autocomplete = 'current-password';
+  }
+
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
 async function doLogin() {
   const email = document.getElementById('auth-email')?.value.trim();
   const pass = document.getElementById('auth-pass')?.value;
