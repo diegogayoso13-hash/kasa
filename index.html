@@ -508,6 +508,7 @@ const LANG = {
     lbl_guardar: 'Guardar',
     lbl_historial_sep: 'gastos  •  Total:',
     lbl_monto_col: 'Monto',
+    autodetect_hint: '✨ Categoría detectada automáticamente. Cambiala si no es correcta.',
     mot_viaje: 'Viaje / vacaciones',
     mot_refac: 'Refacción / hogar',
     mot_electro: 'Electrodoméstico',
@@ -882,6 +883,7 @@ const LANG = {
     lbl_guardar: 'Save',
     lbl_historial_sep: 'expenses  •  Total:',
     lbl_monto_col: 'Amount',
+    autodetect_hint: '✨ Category detected automatically. Change it if it\'s wrong.',
     mot_viaje: 'Trip / vacation',
     mot_refac: 'Home renovation',
     mot_electro: 'Appliance',
@@ -1251,6 +1253,7 @@ const LANG = {
     lbl_guardar: 'Salvar',
     lbl_historial_sep: 'gastos  •  Total:',
     lbl_monto_col: 'Valor',
+    autodetect_hint: '✨ Categoria detectada automaticamente. Mude se estiver errada.',
     mot_viaje: 'Viagem / férias',
     mot_refac: 'Reforma / lar',
     mot_electro: 'Eletrodoméstico',
@@ -1386,6 +1389,13 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
 .skeleton { background: var(--bg2); border-radius: var(--r); overflow: hidden; position: relative; }
 .skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(127,127,127,.08), transparent); animation: shimmer 1.5s infinite; }
 @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes catFlash {
+  0%, 100% { border-color: var(--border2); box-shadow: none; }
+  50%       { border-color: var(--teal, #1DBA87); box-shadow: 0 0 0 2px rgba(29,186,135,.25); }
+}
+#f-cat.cat-flash { animation: catFlash 250ms ease-out; }
+.cat-autodetect-hint { font-size: 12px; color: var(--teal, #1DBA87); margin-bottom: 4px; opacity: 0; max-height: 0; overflow: hidden; transition: opacity 300ms ease; }
+.cat-autodetect-hint.visible { opacity: 1; max-height: 40px; transition: opacity 200ms ease; }
 .skeleton-kpi { height: 80px; margin-bottom: 10px; }
 .skeleton-chart { height: 200px; margin-bottom: 12px; }
 #onboarding { position: fixed; inset: 0; background: #0E1628; z-index: 999; overflow-y: auto; -webkit-overflow-scrolling: touch; display: none; }
@@ -1943,6 +1953,7 @@ tr:last-child td { border: none; }
           <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="f-fecha"></div>
         </div>
         <div class="field"><label data-i18n="lbl_categoria">Categoría</label>
+          <div id="f-cat-hint" class="cat-autodetect-hint"></div>
           <select id="f-cat" onchange="updateSubcat()">
           </select>
         </div>
@@ -5500,9 +5511,27 @@ const CAT_KEYWORDS = {
   'Varios': []
 };
 
+let _autoDetectHintTimer = null;
+
+function showAutoDetectHint() {
+  const hint = document.getElementById('f-cat-hint');
+  if (!hint) return;
+  hint.textContent = t('autodetect_hint');
+  hint.classList.add('visible');
+  clearTimeout(_autoDetectHintTimer);
+  _autoDetectHintTimer = setTimeout(() => hint.classList.remove('visible'), 4000);
+}
+
+function hideAutoDetectHint() {
+  const hint = document.getElementById('f-cat-hint');
+  if (!hint) return;
+  clearTimeout(_autoDetectHintTimer);
+  hint.classList.remove('visible');
+}
+
 function autoDetectCat(texto) {
   const desc = (texto || '').toLowerCase().trim();
-  if (desc.length < 3) return;
+  if (desc.length < 3) { hideAutoDetectHint(); return; }
   const catSelect = document.getElementById('f-cat');
   if (!catSelect || catSelect.dataset.userSet === '1') return;
 
@@ -5513,6 +5542,11 @@ function autoDetectCat(texto) {
         if (option) {
           catSelect.value = cat;
           if (typeof updateSubcat === 'function') updateSubcat();
+          catSelect.classList.remove('cat-flash');
+          void catSelect.offsetWidth;
+          catSelect.classList.add('cat-flash');
+          catSelect.addEventListener('animationend', () => catSelect.classList.remove('cat-flash'), { once: true });
+          showAutoDetectHint();
         }
       }
       return;
@@ -5524,7 +5558,8 @@ function autoDetectCat(texto) {
 document.addEventListener('DOMContentLoaded', () => {
   const catSelect = document.getElementById('f-cat');
   if (catSelect) {
-    catSelect.addEventListener('change', () => { catSelect.dataset.userSet = '1'; });
+    catSelect.addEventListener('change', () => { catSelect.dataset.userSet = '1'; hideAutoDetectHint(); });
+    catSelect.addEventListener('click', hideAutoDetectHint);
   }
   const descInput = document.getElementById('f-desc');
   if (descInput) {
