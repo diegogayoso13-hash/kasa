@@ -510,6 +510,7 @@ const LANG = {
     lbl_monto_col: 'Monto',
     autodetect_hint: '✨ Categoría detectada automáticamente. Cambiala si no es correcta.',
     subcat_autodetect_hint: '✨ Subcategoría detectada automáticamente. Cambiala si no es correcta.',
+    auth_hint_ajustes: 'Iniciá sesión para sincronizar tus datos en la nube y acceder desde cualquier dispositivo.',
     mot_viaje: 'Viaje / vacaciones',
     mot_refac: 'Refacción / hogar',
     mot_electro: 'Electrodoméstico',
@@ -886,6 +887,7 @@ const LANG = {
     lbl_monto_col: 'Amount',
     autodetect_hint: '✨ Category detected automatically. Change it if it\'s wrong.',
     subcat_autodetect_hint: '✨ Subcategory detected automatically. Change it if it\'s wrong.',
+    auth_hint_ajustes: 'Sign in to sync your data to the cloud and access it from any device.',
     mot_viaje: 'Trip / vacation',
     mot_refac: 'Home renovation',
     mot_electro: 'Appliance',
@@ -1257,6 +1259,7 @@ const LANG = {
     lbl_monto_col: 'Valor',
     autodetect_hint: '✨ Categoria detectada automaticamente. Mude se estiver errada.',
     subcat_autodetect_hint: '✨ Subcategoria detectada automaticamente. Mude se estiver errada.',
+    auth_hint_ajustes: 'Faça login para sincronizar seus dados na nuvem e acessá-los de qualquer dispositivo.',
     mot_viaje: 'Viagem / férias',
     mot_refac: 'Reforma / lar',
     mot_electro: 'Eletrodoméstico',
@@ -2212,17 +2215,17 @@ tr:last-child td { border: none; }
         </div>
         <!-- Usuario sin cuenta -->
         <div id="auth-logged-out">
-          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5">Iniciá sesión para sincronizar tus datos en la nube y acceder desde cualquier dispositivo.</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5" data-i18n="auth_hint_ajustes">Iniciá sesión para sincronizar tus datos en la nube y acceder desde cualquier dispositivo.</div>
           <div class="field"><label>Email</label>
             <input type="email" id="aj-login-email" placeholder="tu@email.com" autocomplete="email"
               style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px;outline:none">
           </div>
-          <div class="field"><label>Contraseña</label>
+          <div class="field"><label data-i18n="auth_password">Contraseña</label>
             <input type="password" id="aj-login-pass" placeholder="••••••••" autocomplete="current-password"
               style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px;outline:none">
           </div>
-          <button class="btn btn-primary" onclick="doLoginAjustes()" style="margin-bottom:10px;font-size:14px;padding:12px">Iniciar sesión</button>
-          <button class="btn" onclick="doRegisterAjustes()" style="font-size:13px;padding:10px;color:var(--text2)">Crear cuenta nueva</button>
+          <button class="btn btn-primary" onclick="doLoginAjustes()" style="margin-bottom:10px;font-size:14px;padding:12px" data-i18n="auth_login">Iniciar sesión</button>
+          <button class="btn" onclick="doRegisterAjustes()" style="font-size:13px;padding:10px;color:var(--text2)" data-i18n="auth_register">Crear cuenta nueva</button>
         </div>
       </div>
 
