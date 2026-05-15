@@ -509,6 +509,7 @@ const LANG = {
     lbl_historial_sep: 'gastos  •  Total:',
     lbl_monto_col: 'Monto',
     autodetect_hint: '✨ Categoría detectada automáticamente. Cambiala si no es correcta.',
+    subcat_autodetect_hint: '✨ Subcategoría detectada automáticamente. Cambiala si no es correcta.',
     mot_viaje: 'Viaje / vacaciones',
     mot_refac: 'Refacción / hogar',
     mot_electro: 'Electrodoméstico',
@@ -884,6 +885,7 @@ const LANG = {
     lbl_historial_sep: 'expenses  •  Total:',
     lbl_monto_col: 'Amount',
     autodetect_hint: '✨ Category detected automatically. Change it if it\'s wrong.',
+    subcat_autodetect_hint: '✨ Subcategory detected automatically. Change it if it\'s wrong.',
     mot_viaje: 'Trip / vacation',
     mot_refac: 'Home renovation',
     mot_electro: 'Appliance',
@@ -1254,6 +1256,7 @@ const LANG = {
     lbl_historial_sep: 'gastos  •  Total:',
     lbl_monto_col: 'Valor',
     autodetect_hint: '✨ Categoria detectada automaticamente. Mude se estiver errada.',
+    subcat_autodetect_hint: '✨ Subcategoria detectada automaticamente. Mude se estiver errada.',
     mot_viaje: 'Viagem / férias',
     mot_refac: 'Reforma / lar',
     mot_electro: 'Eletrodoméstico',
@@ -1393,7 +1396,7 @@ html, body { height: 100%; position: relative; background: var(--bg); font-size:
   0%, 100% { border-color: var(--border2); box-shadow: none; }
   50%       { border-color: var(--teal, #1DBA87); box-shadow: 0 0 0 2px rgba(29,186,135,.25); }
 }
-#f-cat.cat-flash { animation: catFlash 250ms ease-out; }
+#f-cat.cat-flash, #f-subcat.cat-flash, #qf-subcat.cat-flash { animation: catFlash 250ms ease-out; }
 .cat-autodetect-hint { font-size: 12px; color: var(--teal, #1DBA87); margin-bottom: 4px; opacity: 0; max-height: 0; overflow: hidden; transition: opacity 300ms ease; }
 .cat-autodetect-hint.visible { opacity: 1; max-height: 40px; transition: opacity 200ms ease; }
 .skeleton-kpi { height: 80px; margin-bottom: 10px; }
@@ -1959,6 +1962,7 @@ tr:last-child td { border: none; }
         </div>
         <div class="field" id="f-subcat-field" style="display:none">
           <label data-i18n="lbl_subcategoria">Subcategoría</label>
+          <div id="f-subcat-hint" class="cat-autodetect-hint"></div>
           <select id="f-subcat"></select>
         </div>
         <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="f-mes"></select></div>
@@ -3216,6 +3220,9 @@ async function updateSubcat() {
   if(scList.length) {
     field.style.display = 'block';
     sel.innerHTML = scList.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+    delete sel.dataset.userSet;
+    const desc = document.getElementById('f-desc')?.value || '';
+    autoDetectSubcat(desc, sel, 'f-subcat-hint');
   } else {
     field.style.display = 'none';
     sel.innerHTML = '';
@@ -3259,6 +3266,7 @@ function guardarGasto() {
   document.getElementById('f-monto').value = '';
   const catSel = document.getElementById('f-cat');
   if (catSel) delete catSel.dataset.userSet;
+  if (subcatEl) delete subcatEl.dataset.userSet;
   toast(t('toast_gasto_ok'));
   renderQuick();
 }
@@ -5423,15 +5431,17 @@ window.addEventListener('offline', () => {
       <select id="qf-cat" onchange="this.dataset.userSet='1';actualizarQfSubcat()"></select>
     </div>
 
+    <div class="field" id="qf-subcat-field" style="display:none">
+      <label data-i18n="lbl_subcategoria">Subcategoría</label>
+      <div id="qf-subcat-hint" class="cat-autodetect-hint"></div>
+      <select id="qf-subcat"></select>
+    </div>
+
     <button onclick="toggleQfMasOpciones()" style="width:100%;background:transparent;border:0.5px dashed var(--border2);border-radius:var(--r-sm);color:var(--text2);font-size:13px;padding:10px;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px">
       <span>Más opciones</span><span id="qf-mas-flecha">▾</span>
     </button>
 
     <div id="qf-mas-opciones" style="display:none">
-      <div class="field" id="qf-subcat-field" style="display:none">
-        <label data-i18n="lbl_subcategoria">Subcategoría</label>
-        <select id="qf-subcat"></select>
-      </div>
       <div class="row2">
         <div class="field"><label data-i18n="lbl_fecha">Fecha</label><input type="date" id="qf-fecha"></div>
         <div class="field"><label data-i18n="lbl_mes">Mes</label><select id="qf-mes"></select></div>
@@ -5512,6 +5522,51 @@ const CAT_KEYWORDS = {
 };
 
 let _autoDetectHintTimer = null;
+let _autoDetectSubcatHintTimer = null;
+
+function normalizeStr(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function showSubcatHint(hintId) {
+  const hint = document.getElementById(hintId);
+  if (!hint) return;
+  hint.textContent = t('subcat_autodetect_hint');
+  hint.classList.add('visible');
+  clearTimeout(_autoDetectSubcatHintTimer);
+  _autoDetectSubcatHintTimer = setTimeout(() => hint.classList.remove('visible'), 4000);
+}
+
+function hideSubcatHint(hintId) {
+  const hint = document.getElementById(hintId);
+  if (!hint) return;
+  clearTimeout(_autoDetectSubcatHintTimer);
+  hint.classList.remove('visible');
+}
+
+function autoDetectSubcat(desc, subcatEl, hintId) {
+  if (!subcatEl || subcatEl.dataset.userSet === '1') return;
+  const descNorm = normalizeStr(desc);
+  if (descNorm.length < 3) return;
+  const options = Array.from(subcatEl.options);
+  if (options.length === 0) return;
+  let best = null;
+  for (const opt of options) {
+    const nameNorm = normalizeStr(opt.value);
+    if (nameNorm.length === 0) continue;
+    if (descNorm.includes(nameNorm)) {
+      if (!best || nameNorm.length > normalizeStr(best).length) best = opt.value;
+    }
+  }
+  if (best && subcatEl.value !== best) {
+    subcatEl.value = best;
+    subcatEl.classList.remove('cat-flash');
+    void subcatEl.offsetWidth;
+    subcatEl.classList.add('cat-flash');
+    subcatEl.addEventListener('animationend', () => subcatEl.classList.remove('cat-flash'), { once: true });
+    showSubcatHint(hintId);
+  }
+}
 
 function showAutoDetectHint() {
   const hint = document.getElementById('f-cat-hint');
@@ -5566,6 +5621,14 @@ document.addEventListener('DOMContentLoaded', () => {
     descInput.addEventListener('focus', () => {
       if (catSelect) delete catSelect.dataset.userSet;
     });
+  }
+  const subcatSelect = document.getElementById('f-subcat');
+  if (subcatSelect) {
+    subcatSelect.addEventListener('change', () => { subcatSelect.dataset.userSet = '1'; hideSubcatHint('f-subcat-hint'); });
+  }
+  const qfSubcatSelect = document.getElementById('qf-subcat');
+  if (qfSubcatSelect) {
+    qfSubcatSelect.addEventListener('change', () => { qfSubcatSelect.dataset.userSet = '1'; hideSubcatHint('qf-subcat-hint'); });
   }
 });
 /* ── DETECCIÓN DE DATOS SIN GUARDAR ────────────────────────────────── */
@@ -5669,7 +5732,9 @@ function actualizarQfSubcat() {
   if (lista.length) {
     field.style.display = 'block';
     sel.innerHTML = lista.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
-    sel.value = lista[0];
+    delete sel.dataset.userSet;
+    const desc = document.getElementById('qf-desc')?.value || '';
+    autoDetectSubcat(desc, sel, 'qf-subcat-hint');
   } else {
     field.style.display = 'none';
   }
