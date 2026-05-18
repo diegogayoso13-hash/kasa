@@ -554,6 +554,8 @@ const LANG = {
     auth_reset_sent: 'Te enviamos un email con instrucciones. Revisá tu bandeja de entrada y la carpeta de spam.',
     auth_new_pass_title: 'Crear nueva contraseña', auth_new_pass: 'Nueva contraseña', auth_confirm_pass: 'Confirmá la contraseña',
     auth_save_pass: 'Guardar nueva contraseña', auth_pass_updated: '¡Contraseña actualizada!', auth_pass_no_match: 'Las contraseñas no coinciden',
+    auth_err_same_pass: 'La contraseña nueva debe ser diferente a la anterior.', auth_err_weak_pass: 'La contraseña es muy débil. Probá con una más larga.',
+    auth_err_session_exp: 'Tu sesión expiró. Pedí un nuevo email de recuperación.', auth_err_update_pass: 'No se pudo actualizar la contraseña. Intentá de nuevo en un momento.',
     mig_title: 'Tenés datos en este dispositivo y en tu cuenta',
     mig_desc: 'Elegí qué datos querés conservar.',
     mig_local_label: 'En este dispositivo', mig_cloud_label: 'En tu cuenta',
@@ -940,6 +942,8 @@ const LANG = {
     auth_reset_sent: 'We sent you an email with instructions. Check your inbox and spam folder.',
     auth_new_pass_title: 'Create new password', auth_new_pass: 'New password', auth_confirm_pass: 'Confirm password',
     auth_save_pass: 'Save new password', auth_pass_updated: 'Password updated!', auth_pass_no_match: "Passwords don't match",
+    auth_err_same_pass: 'New password must be different from the previous one.', auth_err_weak_pass: 'Password is too weak. Try a longer one.',
+    auth_err_session_exp: 'Your session expired. Request a new recovery email.', auth_err_update_pass: 'Could not update password. Please try again in a moment.',
     mig_title: 'You have data on this device and in your account',
     mig_desc: 'Choose which data to keep.',
     mig_local_label: 'On this device', mig_cloud_label: 'In your account',
@@ -1317,6 +1321,8 @@ const LANG = {
     auth_reset_sent: 'Enviamos um email com instruções. Verifique sua caixa de entrada e pasta de spam.',
     auth_new_pass_title: 'Criar nova senha', auth_new_pass: 'Nova senha', auth_confirm_pass: 'Confirme a senha',
     auth_save_pass: 'Salvar nova senha', auth_pass_updated: 'Senha atualizada!', auth_pass_no_match: 'As senhas não coincidem',
+    auth_err_same_pass: 'A nova senha deve ser diferente da anterior.', auth_err_weak_pass: 'A senha é muito fraca. Tente uma mais longa.',
+    auth_err_session_exp: 'Sua sessão expirou. Solicite um novo email de recuperação.', auth_err_update_pass: 'Não foi possível atualizar a senha. Tente novamente em um momento.',
     mig_title: 'Você tem dados neste dispositivo e na sua conta',
     mig_desc: 'Escolha quais dados manter.',
     mig_local_label: 'Neste dispositivo', mig_cloud_label: 'Na sua conta',
@@ -5449,7 +5455,7 @@ function showResetPassScreen() {
   if(screen) screen.style.display = 'flex';
   const ls = document.getElementById('login-screen');
   if(ls) ls.style.display = 'none';
-  applyI18n();
+  applyLang();
 }
 
 async function doResetPassword() {
@@ -5462,7 +5468,13 @@ async function doResetPassword() {
   try {
     const { error } = await supabaseClient.auth.updateUser({ password: newPass });
     if(error) {
-      toast(error.message || 'Error al actualizar la contraseña');
+      const msg = error.message || '';
+      let userMsg;
+      if(msg.includes('different from the old password')) userMsg = t('auth_err_same_pass');
+      else if(msg.toLowerCase().includes('weak password'))  userMsg = t('auth_err_weak_pass');
+      else if(msg.toLowerCase().includes('session'))        userMsg = t('auth_err_session_exp');
+      else                                                   userMsg = t('auth_err_update_pass');
+      toast(userMsg);
       if(btn){ btn.disabled = false; btn.textContent = t('auth_save_pass') || 'Guardar nueva contraseña'; }
       return;
     }
