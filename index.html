@@ -1484,7 +1484,7 @@ tr:last-child td { border: none; }
 .goal-pct { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; }
 
 /* TOAST */
-#toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-10px); background: var(--bg4); color: var(--text); border: 0.5px solid var(--border2); border-radius: 20px; padding: 8px 20px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 999; white-space: nowrap; pointer-events: none; }
+#toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-10px); background: var(--bg4); color: var(--text); border: 0.5px solid var(--border2); border-radius: 20px; padding: 8px 20px; font-size: 13px; opacity: 0; transition: all .3s; z-index: 1200; white-space: nowrap; pointer-events: none; }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
 /* STATUS PILLS */
@@ -5468,12 +5468,13 @@ async function doResetPassword() {
   try {
     const { error } = await supabaseClient.auth.updateUser({ password: newPass });
     if(error) {
-      const msg = error.message || '';
+      console.log('updateUser error:', error);
+      const msg = (error.message || '').toLowerCase();
       let userMsg;
-      if(msg.includes('different from the old password')) userMsg = t('auth_err_same_pass');
-      else if(msg.toLowerCase().includes('weak password'))  userMsg = t('auth_err_weak_pass');
-      else if(msg.toLowerCase().includes('session'))        userMsg = t('auth_err_session_exp');
-      else                                                   userMsg = t('auth_err_update_pass');
+      if(msg.includes('different from the old') || error.status === 422) userMsg = t('auth_err_same_pass');
+      else if(msg.includes('weak password') || msg.includes('password should be')) userMsg = t('auth_err_weak_pass');
+      else if(msg.includes('session') || msg.includes('expired') || msg.includes('jwt')) userMsg = t('auth_err_session_exp');
+      else userMsg = t('auth_err_update_pass');
       toast(userMsg);
       if(btn){ btn.disabled = false; btn.textContent = t('auth_save_pass') || 'Guardar nueva contraseña'; }
       return;
