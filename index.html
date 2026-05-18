@@ -2292,6 +2292,12 @@ tr:last-child td { border: none; }
               style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--r-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;padding:12px;outline:none">
           </div>
           <button class="btn btn-primary" onclick="doLoginAjustes()" style="margin-bottom:10px;font-size:14px;padding:12px" data-i18n="auth_login">Iniciar sesión</button>
+          <div style="text-align:center;margin-bottom:10px">
+            <button onclick="openForgotModal()" data-i18n="auth_forgot_password"
+              style="background:none;border:none;color:var(--text2);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">
+              ¿Olvidaste tu contraseña?
+            </button>
+          </div>
           <button class="btn" onclick="doRegisterAjustes()" style="font-size:13px;padding:10px;color:var(--text2)" data-i18n="auth_register">Crear cuenta nueva</button>
         </div>
       </div>
