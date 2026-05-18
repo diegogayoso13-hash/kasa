@@ -18,7 +18,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <script>
 /* ── GLOBAL AUTH VARS (must be first to avoid TDZ) ──────────────────────── */
-const MARTIFIN_VERSION = 'v8.1';
+const MARTIFIN_VERSION = 'v8.4';
 console.log('✅ Martifin ' + MARTIFIN_VERSION + ' loaded - supabaseClient init at top');
 var supabaseClient = null;
 var currentUser = null;
@@ -549,6 +549,11 @@ const LANG = {
     pro_feat_pdf_export: 'Exportar a PDF',
     auth_error_invalid: 'Email o contraseña incorrectos',
     auth_check_email: 'Revisá tu email para confirmar', auth_register_ok: '¡Cuenta creada!', auth_pass_short: 'Mínimo 6 caracteres',
+    auth_forgot_password: '¿Olvidaste tu contraseña?',
+    auth_reset_title: 'Recuperar contraseña', auth_reset_send: 'Enviar link de recuperación', auth_reset_back: 'Volver al login',
+    auth_reset_sent: 'Te enviamos un email con instrucciones. Revisá tu bandeja de entrada y la carpeta de spam.',
+    auth_new_pass_title: 'Crear nueva contraseña', auth_new_pass: 'Nueva contraseña', auth_confirm_pass: 'Confirmá la contraseña',
+    auth_save_pass: 'Guardar nueva contraseña', auth_pass_updated: '¡Contraseña actualizada!', auth_pass_no_match: 'Las contraseñas no coinciden',
     mig_title: 'Tenés datos en este dispositivo y en tu cuenta',
     mig_desc: 'Elegí qué datos querés conservar.',
     mig_local_label: 'En este dispositivo', mig_cloud_label: 'En tu cuenta',
@@ -930,6 +935,11 @@ const LANG = {
     pro_feat_pdf_export: 'Export to PDF',
     auth_error_invalid: 'Invalid email or password',
     auth_check_email: 'Check your email to confirm', auth_register_ok: 'Account created!', auth_pass_short: 'At least 6 characters',
+    auth_forgot_password: 'Forgot your password?',
+    auth_reset_title: 'Reset password', auth_reset_send: 'Send recovery link', auth_reset_back: 'Back to sign in',
+    auth_reset_sent: 'We sent you an email with instructions. Check your inbox and spam folder.',
+    auth_new_pass_title: 'Create new password', auth_new_pass: 'New password', auth_confirm_pass: 'Confirm password',
+    auth_save_pass: 'Save new password', auth_pass_updated: 'Password updated!', auth_pass_no_match: "Passwords don't match",
     mig_title: 'You have data on this device and in your account',
     mig_desc: 'Choose which data to keep.',
     mig_local_label: 'On this device', mig_cloud_label: 'In your account',
@@ -1302,6 +1312,11 @@ const LANG = {
     pro_feat_pdf_export: 'Exportar para PDF',
     auth_error_invalid: 'Email ou senha incorretos',
     auth_check_email: 'Verifique seu email para confirmar', auth_register_ok: 'Conta criada!', auth_pass_short: 'Mínimo 6 caracteres',
+    auth_forgot_password: 'Esqueceu sua senha?',
+    auth_reset_title: 'Recuperar senha', auth_reset_send: 'Enviar link de recuperação', auth_reset_back: 'Voltar ao login',
+    auth_reset_sent: 'Enviamos um email com instruções. Verifique sua caixa de entrada e pasta de spam.',
+    auth_new_pass_title: 'Criar nova senha', auth_new_pass: 'Nova senha', auth_confirm_pass: 'Confirme a senha',
+    auth_save_pass: 'Salvar nova senha', auth_pass_updated: 'Senha atualizada!', auth_pass_no_match: 'As senhas não coincidem',
     mig_title: 'Você tem dados neste dispositivo e na sua conta',
     mig_desc: 'Escolha quais dados manter.',
     mig_local_label: 'Neste dispositivo', mig_cloud_label: 'Na sua conta',
@@ -1604,6 +1619,12 @@ tr:last-child td { border: none; }
         style="width:100%;padding:13px;background:#1DBA87;border:none;border-radius:12px;color:#000;font-size:15px;font-weight:600;cursor:pointer">
         Crear cuenta
       </button>
+      <div id="forgot-pass-wrap" style="display:none;text-align:center;margin-top:10px">
+        <button onclick="openForgotModal()" data-i18n="auth_forgot_password"
+          style="background:none;border:none;color:#8a93a8;font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit">
+          ¿Olvidaste tu contraseña?
+        </button>
+      </div>
     </div>
 
     <!-- Link de login -->
@@ -1613,6 +1634,52 @@ tr:last-child td { border: none; }
         ¿Ya tenés cuenta? Iniciá sesión
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ── FORGOT PASSWORD MODAL ─────────────────────────────────────────────── -->
+<div id="forgot-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1100;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#151F35;border-radius:20px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
+    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:6px" data-i18n="auth_reset_title">Recuperar contraseña</div>
+    <div style="font-size:13px;color:#8a93a8;margin-bottom:20px;line-height:1.5">Ingresá tu email y te enviamos un link para crear una nueva contraseña.</div>
+    <div class="field" style="margin-bottom:14px">
+      <label>Email</label>
+      <input type="email" id="forgot-email" placeholder="tu@email.com" autocomplete="email"
+        style="width:100%;background:#1C2844;border:0.5px solid #2a3a5c;border-radius:10px;color:#fff;font-size:15px;padding:12px;outline:none;box-sizing:border-box">
+    </div>
+    <div id="forgot-msg" style="display:none;background:rgba(29,186,135,0.12);border:0.5px solid #1DBA87;border-radius:10px;padding:12px;font-size:13px;color:#1DBA87;margin-bottom:14px;line-height:1.5"></div>
+    <button id="forgot-send-btn" onclick="doForgotPassword()" data-i18n="auth_reset_send"
+      style="width:100%;padding:13px;background:#1DBA87;border:none;border-radius:12px;color:#000;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px">
+      Enviar link de recuperación
+    </button>
+    <button onclick="closeForgotModal()" data-i18n="auth_reset_back"
+      style="width:100%;padding:11px;background:transparent;border:0.5px solid #2a3a5c;border-radius:12px;color:#8a93a8;font-size:14px;cursor:pointer;font-family:inherit">
+      Volver al login
+    </button>
+  </div>
+</div>
+
+<!-- ── RESET PASSWORD SCREEN ──────────────────────────────────────────────── -->
+<div id="reset-pass-screen" style="display:none;position:fixed;inset:0;background:#0E1628;z-index:1100;align-items:center;justify-content:center;flex-direction:column">
+  <div style="max-width:360px;width:90%;padding:24px">
+    <div style="text-align:center;margin-bottom:32px">
+      <img src="martifin-icon-512x512.png" alt="Martifin" style="width:72px;height:72px;border-radius:18px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.4)">
+      <div style="font-size:22px;font-weight:700;color:#fff" data-i18n="auth_new_pass_title">Crear nueva contraseña</div>
+    </div>
+    <div class="field" style="margin-bottom:12px">
+      <label data-i18n="auth_new_pass">Nueva contraseña</label>
+      <input type="password" id="reset-new-pass" placeholder="••••••••" autocomplete="new-password"
+        style="width:100%;background:#1C2844;border:0.5px solid #2a3a5c;border-radius:10px;color:#fff;font-size:15px;padding:12px;outline:none;box-sizing:border-box">
+    </div>
+    <div class="field" style="margin-bottom:24px">
+      <label data-i18n="auth_confirm_pass">Confirmá la contraseña</label>
+      <input type="password" id="reset-confirm-pass" placeholder="••••••••" autocomplete="new-password"
+        style="width:100%;background:#1C2844;border:0.5px solid #2a3a5c;border-radius:10px;color:#fff;font-size:15px;padding:12px;outline:none;box-sizing:border-box">
+    </div>
+    <button id="reset-save-btn" onclick="doResetPassword()" data-i18n="auth_save_pass"
+      style="width:100%;padding:15px;background:#1DBA87;border:none;border-radius:14px;color:#000;font-size:16px;font-weight:700;cursor:pointer">
+      Guardar nueva contraseña
+    </button>
   </div>
 </div>
 
@@ -4866,13 +4933,14 @@ function initAuthStateListener() {
       invalidateProCache();
       updateProLocks();
     } else if(event === 'TOKEN_REFRESHED' && session) {
-      // Actualizar usuario en memoria con el nuevo token
       currentUser = session.user;
     } else if(event === 'SIGNED_IN' && session) {
       currentUser = session.user;
       USER_ID = session.user.id;
       safeSet('finko_user_id', USER_ID);
       updateAuthUI();
+    } else if(event === 'PASSWORD_RECOVERY') {
+      showResetPassScreen();
     }
   });
 }
@@ -5295,6 +5363,9 @@ function toggleAuthPanel(mode) {
     pass.autocomplete = 'current-password';
   }
 
+  const forgotWrap = document.getElementById('forgot-pass-wrap');
+  if (forgotWrap) forgotWrap.style.display = mode === 'login' ? 'block' : 'none';
+
   setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
 }
 
@@ -5318,6 +5389,93 @@ async function doRegister() {
   if(!email||!pass){ toast(t('toast_campos')); return; }
   if(pass.length<6){ toast(t('auth_pass_short')); return; }
   await registerEmail(email, pass);
+}
+
+/* ── RECUPERAR CONTRASEÑA ─────────────────────────────────────────────────── */
+
+function openForgotModal() {
+  const modal = document.getElementById('forgot-modal');
+  if(!modal) return;
+  modal.style.display = 'flex';
+  const forgotInput = document.getElementById('forgot-email');
+  const loginEmail  = document.getElementById('auth-email')?.value.trim();
+  if(forgotInput && loginEmail) forgotInput.value = loginEmail;
+  const msg = document.getElementById('forgot-msg');
+  if(msg) msg.style.display = 'none';
+  const btn = document.getElementById('forgot-send-btn');
+  if(btn){ btn.disabled = false; btn.textContent = t('auth_reset_send') || 'Enviar link de recuperación'; }
+}
+
+function closeForgotModal() {
+  const modal = document.getElementById('forgot-modal');
+  if(modal) modal.style.display = 'none';
+}
+
+async function doForgotPassword() {
+  const email = document.getElementById('forgot-email')?.value.trim();
+  if(!email || !email.includes('@') || !email.includes('.')) {
+    toast(t('auth_error_invalid') || 'Email inválido'); return;
+  }
+  const btn = document.getElementById('forgot-send-btn');
+  if(btn){ btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: 'https://app.martifin.com/?reset=true'
+    });
+    if(error) {
+      toast(error.message || 'Error al enviar el email');
+      if(btn){ btn.disabled = false; btn.textContent = t('auth_reset_send') || 'Enviar link de recuperación'; }
+      return;
+    }
+    const msg = document.getElementById('forgot-msg');
+    if(msg){ msg.textContent = t('auth_reset_sent') || 'Te enviamos un email con instrucciones. Revisá tu bandeja de entrada y la carpeta de spam.'; msg.style.display = 'block'; }
+    if(btn) btn.style.display = 'none';
+  } catch(e) {
+    console.error('doForgotPassword error:', e);
+    toast('Error: ' + e.message);
+    if(btn){ btn.disabled = false; btn.textContent = t('auth_reset_send') || 'Enviar link de recuperación'; }
+  }
+}
+
+function showResetPassScreen() {
+  closeForgotModal();
+  const screen = document.getElementById('reset-pass-screen');
+  if(screen) screen.style.display = 'flex';
+  const ls = document.getElementById('login-screen');
+  if(ls) ls.style.display = 'none';
+  applyI18n();
+}
+
+async function doResetPassword() {
+  const newPass     = document.getElementById('reset-new-pass')?.value;
+  const confirmPass = document.getElementById('reset-confirm-pass')?.value;
+  if(!newPass || newPass.length < 6){ toast(t('auth_pass_short') || 'Mínimo 6 caracteres'); return; }
+  if(newPass !== confirmPass){ toast(t('auth_pass_no_match') || 'Las contraseñas no coinciden'); return; }
+  const btn = document.getElementById('reset-save-btn');
+  if(btn){ btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const { error } = await supabaseClient.auth.updateUser({ password: newPass });
+    if(error) {
+      toast(error.message || 'Error al actualizar la contraseña');
+      if(btn){ btn.disabled = false; btn.textContent = t('auth_save_pass') || 'Guardar nueva contraseña'; }
+      return;
+    }
+    toast(t('auth_pass_updated') || '¡Contraseña actualizada!');
+    // Limpiar ?reset=true de la URL
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('reset');
+      window.history.replaceState({}, '', url.pathname + (url.search !== '?' ? url.search : ''));
+    } catch(_) {}
+    // Ocultar pantalla y mostrar app
+    const screen = document.getElementById('reset-pass-screen');
+    if(screen) screen.style.display = 'none';
+    hideLoginScreen();
+  } catch(e) {
+    console.error('doResetPassword error:', e);
+    toast('Error: ' + e.message);
+    if(btn){ btn.disabled = false; btn.textContent = t('auth_save_pass') || 'Guardar nueva contraseña'; }
+  }
 }
 
 /* ── TUTORIAL INTERACTIVO ────────────────────────────────────────────────── */
